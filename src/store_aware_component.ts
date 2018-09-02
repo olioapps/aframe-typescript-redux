@@ -2,84 +2,156 @@ import { Store } from "redux"
 import { ComponentWrapper } from "aframe-typescript-toolkit"
 import StoreAware from "./store_aware"
 import { BaseRepository, RepositoryMember } from "./core"
-import Manager from "./manager"
+import { RepositoryConnector } from "./connectors"
 
-class Connector<
-    P, 
-    E extends RepositoryMember, 
-    R extends BaseRepository<E>, 
-    S,
-    W extends StoreAwareComponent<P, E, R, S>
-> extends Manager<P, E, R, W, S> {
-    component: W
-    constructor(store: Store, props: P, component: W) {
-        super(store, props)
-        this.component = component
-    }
+/**
+ * Maintains a 1:1 relationship between a store object we want to watch, and
+ * an aframe entity component instance
+ */
+export abstract class StoreAwareRepositoryComponent<
+    PROPS, 
+    STORE_OBJECT extends RepositoryMember, 
+    STORE_REPOSITORY extends BaseRepository<STORE_OBJECT>, 
+    SCHEMA = {},
+> extends ComponentWrapper<SCHEMA> {
     
-    getRepository(props: P): R {
-        return this.component.getRepository(props)
-    }
-
-    destroyEntity(id: string): void {
-        this.component.destroyEntity(id)
-    }
-
-    createEntity(entity: E): void {
-        this.component.createEntity(entity)
-    }
-
-    updateEntity(entity: E): void {
-        this.component.updateEntity(entity)
-    }
-}
-
-export default abstract class StoreAwareComponent<
-    P, 
-    E extends RepositoryMember, R extends BaseRepository<E>, 
-    S = {},
-> extends ComponentWrapper<S> {
-    
-    storeAware: StoreAware<S, P>
-    entities: Map<string, this[]> = new Map<string, this[]>()
+    storeAware: StoreAware<PROPS>
+    private entities: Map<string, this> = new Map<string, this>()
     store: Store
 
-    constructor(store: Store, name: string, props?: P, schema?: S) {
+    constructor(store: Store, name: string, props?: PROPS, schema?: SCHEMA) {
         super(name, schema)
 
-        this.storeAware = new Connector<P, E, R, S, this>(store, props, this)
-        this.store = store
-        this.register()
+        const that = this
+        this.storeAware = new (class Connector extends RepositoryConnector<
+            PROPS, STORE_OBJECT, STORE_REPOSITORY> {
+
+            constructor(store: Store, props: PROPS) {
+        super(store, props)
+    }
+    
+            getRepository(props: PROPS): STORE_REPOSITORY {
+                return that.resolveRepository(props)
     }
 
-    componentShouldUpdate(props: P, nextProps: P): boolean {
+            destroyEntity(entity: STORE_OBJECT): void {
+                that.destroyEntity(entity)
+    }
+
+            createEntity(entity: STORE_OBJECT): void {
+                that.createEntity(entity)
+    }
+
+            updateEntity(entity: STORE_OBJECT): void {
+                that.updateEntity(entity)
+    }
+        })(store, props)
+
+        this.store = store
+    }
+
+    componentShouldUpdate(props: PROPS, nextProps: PROPS): boolean {
         // override
         return true
     }
 
-    abstract getRepository(props: P): R
+    abstract resolveRepository(props: PROPS): STORE_REPOSITORY
+    abstract resolveStoreObject(data: SCHEMA): STORE_OBJECT
 
-    createEntity(entity: E): void {
-        // override
+    //
+    // -- store object / aframe component lifecycle functions
+    //
+    abstract onStoreObjectCreate(bullet: STORE_OBJECT): AFrame.ANode
+    onStoreObjectUpdate(entity: STORE_OBJECT, component: this): void {
+        // override noop
     }
 
-    updateEntity(entity: E): void {
-        // override
+    // called right before the aframe component is destroyed
+    beforeStoreObjectDestroy(entity: STORE_OBJECT, w: this): void {
+        // override noop
     }
 
-    destroyEntity(id: string): void {
-        const components = this.entities.get(id) || []
-        components.forEach( c => {
-            c.destroy()
-        })
+    private updateEntity(entity: STORE_OBJECT): void {
+        const c = this.getEntityComponentsFor(entity.id)
+        this.onStoreObjectUpdate(entity, c)
     }
 
-    getEntityComponents(id: string): this[] {
+    private createEntity(entity: STORE_OBJECT, parent?: AFrame.ANode): void {
+        const aframeComponent = this.onStoreObjectCreate(entity)
+        if (aframeComponent && parent) {
+            // attach to optional parent
+            parent.appendChild(aframeComponent)
+        } else {
+            // otherwise attach to scene
+            document.querySelector("a-scene").appendChild(aframeComponent)
+        }
+    }
+
+    private destroyEntity(entity: STORE_OBJECT): void {
+        const aframeComponent = this.getEntityComponentsFor(entity.id)
+        if (aframeComponent) {
+            this.beforeStoreObjectDestroy(entity, aframeComponent)
+            aframeComponent.destroy()
+        }
+    }
+
+    private getEntityComponentsFor(id: string): this {
         return this.entities.get(id)
     }
 
-    updateEntityComponents(id: string, w: this[]) {
+    private updateEntityComponents(id: string, w: this) {
         this.entities.set(id, w)
     }
     
+    //
+    // -- aframe component lifecycle functions
+    //
+
+    /**
+     * by default, register aframe component instance
+     */
+    init() {
+        const storeObject: STORE_OBJECT = this.resolveStoreObject(this.data)
+        this.updateEntityComponents(storeObject.id, this)
+    }
+}
+
+export abstract class StoreAwareComponent<
+    PROPS, 
+    SCHEMA = {},
+> extends ComponentWrapper<SCHEMA> {
+
+    store: Store
+    storeAware: StoreAware<PROPS>
+    private entities: Map<string, this> = new Map<string, this>()
+
+    constructor(store: Store, name: string, props?: PROPS, schema?: SCHEMA) {
+        super(name, schema)
+
+        const that = this
+        this.storeAware = new (class Connector extends StoreAware<PROPS> {
+
+            constructor(store: Store, props: PROPS) {
+                super(store, props)
+            }
+
+            componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
+                that.componentWillReceiveProps(props, nextProps)
+            }
+            
+        })(store, props)
+
+        this.store = store
+    }
+
+    abstract componentWillReceiveProps(props: PROPS, nextProps: PROPS): void
+
+    init() {
+        console.log(this)
+        this.entities.set("entity", this)
+    }
+
+    getComponent(): this {
+        return this.entities.get("entity")
+    }
 }

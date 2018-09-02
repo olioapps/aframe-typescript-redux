@@ -5,89 +5,6 @@ webpackJsonp([0],[
 "use strict";
 
 
-var __extends = this && this.__extends || function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-            d.__proto__ = b;
-        } || function (d, b) {
-            for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var store_aware_1 = __webpack_require__(1);
-var Manager = /** @class */function (_super) {
-    __extends(Manager, _super);
-    function Manager(store, props) {
-        var _this = _super.call(this, store, props) || this;
-        _this.entities = new Map();
-        return _this;
-    }
-    Manager.prototype.componentWillReceiveProps = function (props, nextProps) {
-        var _this = this;
-        var oldR = this.getRepository(props);
-        var newR = this.getRepository(nextProps);
-        if (oldR !== newR) {
-            // create entities that should exist
-            var toCreate = newR.sort.filter(function (b) {
-                return oldR.sort.indexOf(b) < 0;
-            });
-            toCreate.forEach(function (b) {
-                return _this.createEntity(newR.items[b]);
-            });
-            // destroy entities that shouldn't exist 
-            var toDestroy_1 = oldR.sort.filter(function (b) {
-                return newR.sort.indexOf(b) < 0;
-            });
-            toDestroy_1.forEach(function (b) {
-                return _this.destroyEntity(b);
-            });
-            // update entities if needed
-            var toUpdate = newR.sort.filter(function (b) {
-                return toDestroy_1.indexOf(b) < 0 && newR.items[b] !== oldR.items[b];
-            });
-            toUpdate.forEach(function (b) {
-                return _this.updateEntity(newR.items[b]);
-            });
-        }
-    };
-    Manager.prototype.getEntityComponents = function (id) {
-        return this.entities.get(id);
-    };
-    Manager.prototype.updateEntityComponents = function (id, w) {
-        this.entities.set(id, w);
-    };
-    Manager.prototype.destroyEntity = function (id) {
-        var components = this.entities.get(id) || [];
-        components.forEach(function (c) {
-            c.destroy();
-        });
-    };
-    Manager.prototype.createEntity = function (entity) {
-        // override
-    };
-    Manager.prototype.updateEntity = function (entity) {
-        // override
-    };
-    return Manager;
-}(store_aware_1.default);
-exports.default = Manager;
-
-/***/ }),
-/* 1 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
 var __assign = this && this.__assign || function () {
     __assign = Object.assign || function (t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -118,24 +35,111 @@ var StoreAware = /** @class */function () {
                 if (_this.componentShouldUpdate(_this.localProps, nextProps)) {
                     _this.componentWillReceiveProps(_this.localProps, nextProps);
                     _this.localProps = __assign({}, nextProps);
-                    _this.render();
                 }
             }
         });
     }
     StoreAware.prototype.componentShouldUpdate = function (props, nextProps) {
         // override
-        return true;
+        return props !== nextProps;
     };
     StoreAware.prototype.componentWillReceiveProps = function (props, nextProps) {
-        // override
-    };
-    StoreAware.prototype.render = function () {
         // override
     };
     return StoreAware;
 }();
 exports.default = StoreAware;
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var __extends = this && this.__extends || function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
+            d.__proto__ = b;
+        } || function (d, b) {
+            for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+        };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() {
+            this.constructor = d;
+        }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+}();
+Object.defineProperty(exports, "__esModule", { value: true });
+var store_aware_1 = __webpack_require__(0);
+var GenericPluralConnector = /** @class */function (_super) {
+    __extends(GenericPluralConnector, _super);
+    function GenericPluralConnector(store, props) {
+        return _super.call(this, store, props) || this;
+    }
+    GenericPluralConnector.prototype.componentWillReceiveProps = function (props, nextProps) {
+        var _this = this;
+        // create entities that should exist
+        var toCreate = this.determineEntitiesToCreate(props, nextProps);
+        toCreate.forEach(function (STORE_OBJECT) {
+            return _this.createEntity(STORE_OBJECT);
+        });
+        // destroy entities that shouldn't exist 
+        var toDestroy = this.determineEntitiesToDestroy(props, nextProps);
+        toDestroy.forEach(function (STORE_OBJECT) {
+            return _this.destroyEntity(STORE_OBJECT);
+        });
+        // update entities if needed
+        var toUpdate = this.determineEntitiesToUpdate(props, nextProps);
+        toUpdate.forEach(function (STORE_OBJECT) {
+            return _this.updateEntity(STORE_OBJECT);
+        });
+    };
+    return GenericPluralConnector;
+}(store_aware_1.default);
+var RepositoryConnector = /** @class */function (_super) {
+    __extends(RepositoryConnector, _super);
+    function RepositoryConnector(store, props) {
+        return _super.call(this, store, props) || this;
+    }
+    RepositoryConnector.prototype.determineEntitiesToCreate = function (props, nextProps) {
+        var oldR = this.getRepository(props);
+        var newR = this.getRepository(nextProps);
+        return newR.sort.filter(function (b) {
+            return oldR.sort.indexOf(b) < 0;
+        }).map(function (i) {
+            return newR.items[i];
+        });
+    };
+    RepositoryConnector.prototype.determineEntitiesToDestroy = function (props, nextProps) {
+        var oldR = this.getRepository(props);
+        var newR = this.getRepository(nextProps);
+        return oldR.sort.filter(function (b) {
+            return newR.sort.indexOf(b) < 0;
+        }).map(function (i) {
+            return oldR.items[i];
+        });
+    };
+    RepositoryConnector.prototype.determineEntitiesToUpdate = function (props, nextProps) {
+        var oldR = this.getRepository(props);
+        var newR = this.getRepository(nextProps);
+        var toDestroyIds = this.determineEntitiesToDestroy(props, nextProps).map(function (STORE_OBJECT) {
+            return STORE_OBJECT.id;
+        });
+        var toUpdate = newR.sort.filter(function (b) {
+            return toDestroyIds.indexOf(b) < 0 && oldR.sort.indexOf(b) > -1 && newR.sort.indexOf(b) > -1 && newR.items[b] !== oldR.items[b];
+        });
+        return toUpdate.map(function (i) {
+            return newR.items[i];
+        });
+    };
+    return RepositoryConnector;
+}(GenericPluralConnector);
+exports.RepositoryConnector = RepositoryConnector;
 
 /***/ }),
 /* 2 */
@@ -187,12 +191,13 @@ exports.default = EntityBuilder;
 
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var manager_1 = __webpack_require__(0);
-exports.Manager = manager_1.default;
-var store_aware_1 = __webpack_require__(1);
+var connectors_1 = __webpack_require__(1);
+exports.RepositoryConnector = connectors_1.RepositoryConnector;
+var store_aware_1 = __webpack_require__(0);
 exports.StoreAware = store_aware_1.default;
 var store_aware_component_1 = __webpack_require__(4);
-exports.StoreAwareComponent = store_aware_component_1.default;
+exports.StoreAwareComponent = store_aware_component_1.StoreAwareComponent;
+exports.StoreAwareRepositoryComponent = store_aware_component_1.StoreAwareRepositoryComponent;
 
 /***/ }),
 /* 4 */
@@ -220,63 +225,120 @@ var __extends = this && this.__extends || function () {
 }();
 Object.defineProperty(exports, "__esModule", { value: true });
 var aframe_typescript_toolkit_1 = __webpack_require__(5);
-var manager_1 = __webpack_require__(0);
-var Connector = /** @class */function (_super) {
-    __extends(Connector, _super);
-    function Connector(store, props, component) {
-        var _this = _super.call(this, store, props) || this;
-        _this.component = component;
+var store_aware_1 = __webpack_require__(0);
+var connectors_1 = __webpack_require__(1);
+/**
+ * Maintains a 1:1 relationship between a store object we want to watch, and
+ * an aframe entity component instance
+ */
+var StoreAwareRepositoryComponent = /** @class */function (_super) {
+    __extends(StoreAwareRepositoryComponent, _super);
+    function StoreAwareRepositoryComponent(store, name, props, schema) {
+        var _this = _super.call(this, name, schema) || this;
+        _this.entities = new Map();
+        var that = _this;
+        _this.storeAware = new ( /** @class */function (_super) {
+            __extends(Connector, _super);
+            function Connector(store, props) {
+                return _super.call(this, store, props) || this;
+            }
+            Connector.prototype.getRepository = function (props) {
+                return that.resolveRepository(props);
+            };
+            Connector.prototype.destroyEntity = function (entity) {
+                that.destroyEntity(entity);
+            };
+            Connector.prototype.createEntity = function (entity) {
+                that.createEntity(entity);
+            };
+            Connector.prototype.updateEntity = function (entity) {
+                that.updateEntity(entity);
+            };
+            return Connector;
+        }(connectors_1.RepositoryConnector))(store, props);
+        _this.store = store;
         return _this;
     }
-    Connector.prototype.getRepository = function (props) {
-        return this.component.getRepository(props);
+    StoreAwareRepositoryComponent.prototype.componentShouldUpdate = function (props, nextProps) {
+        // override
+        return true;
     };
-    Connector.prototype.destroyEntity = function (id) {
-        this.component.destroyEntity(id);
+    StoreAwareRepositoryComponent.prototype.onStoreObjectUpdate = function (entity, component) {
+        // override noop
     };
-    Connector.prototype.createEntity = function (entity) {
-        this.component.createEntity(entity);
+    // called right before the aframe component is destroyed
+    StoreAwareRepositoryComponent.prototype.beforeStoreObjectDestroy = function (entity, w) {
+        // override noop
     };
-    Connector.prototype.updateEntity = function (entity) {
-        this.component.updateEntity(entity);
+    StoreAwareRepositoryComponent.prototype.updateEntity = function (entity) {
+        var c = this.getEntityComponentsFor(entity.id);
+        this.onStoreObjectUpdate(entity, c);
     };
-    return Connector;
-}(manager_1.default);
+    StoreAwareRepositoryComponent.prototype.createEntity = function (entity, parent) {
+        var aframeComponent = this.onStoreObjectCreate(entity);
+        if (aframeComponent && parent) {
+            // attach to optional parent
+            parent.appendChild(aframeComponent);
+        } else {
+            // otherwise attach to scene
+            document.querySelector("a-scene").appendChild(aframeComponent);
+        }
+    };
+    StoreAwareRepositoryComponent.prototype.destroyEntity = function (entity) {
+        var aframeComponent = this.getEntityComponentsFor(entity.id);
+        if (aframeComponent) {
+            this.beforeStoreObjectDestroy(entity, aframeComponent);
+            aframeComponent.destroy();
+        }
+    };
+    StoreAwareRepositoryComponent.prototype.getEntityComponentsFor = function (id) {
+        return this.entities.get(id);
+    };
+    StoreAwareRepositoryComponent.prototype.updateEntityComponents = function (id, w) {
+        this.entities.set(id, w);
+    };
+    //
+    // -- aframe component lifecycle functions
+    //
+    /**
+     * by default, register aframe component instance
+     */
+    StoreAwareRepositoryComponent.prototype.init = function () {
+        var storeObject = this.resolveStoreObject(this.data);
+        this.updateEntityComponents(storeObject.id, this);
+    };
+    return StoreAwareRepositoryComponent;
+}(aframe_typescript_toolkit_1.ComponentWrapper);
+exports.StoreAwareRepositoryComponent = StoreAwareRepositoryComponent;
 var StoreAwareComponent = /** @class */function (_super) {
     __extends(StoreAwareComponent, _super);
     function StoreAwareComponent(store, name, props, schema) {
         var _this = _super.call(this, name, schema) || this;
         _this.entities = new Map();
-        _this.storeAware = new Connector(store, props, _this);
+        var that = _this;
+        _this.storeAware = new ( /** @class */function (_super) {
+            __extends(Connector, _super);
+            function Connector(store, props) {
+                return _super.call(this, store, props) || this;
+            }
+            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
+                that.componentWillReceiveProps(props, nextProps);
+            };
+            return Connector;
+        }(store_aware_1.default))(store, props);
         _this.store = store;
-        _this.register();
         return _this;
     }
-    StoreAwareComponent.prototype.componentShouldUpdate = function (props, nextProps) {
-        // override
-        return true;
+    StoreAwareComponent.prototype.init = function () {
+        console.log(this);
+        this.entities.set("entity", this);
     };
-    StoreAwareComponent.prototype.createEntity = function (entity) {
-        // override
-    };
-    StoreAwareComponent.prototype.updateEntity = function (entity) {
-        // override
-    };
-    StoreAwareComponent.prototype.destroyEntity = function (id) {
-        var components = this.entities.get(id) || [];
-        components.forEach(function (c) {
-            c.destroy();
-        });
-    };
-    StoreAwareComponent.prototype.getEntityComponents = function (id) {
-        return this.entities.get(id);
-    };
-    StoreAwareComponent.prototype.updateEntityComponents = function (id, w) {
-        this.entities.set(id, w);
+    StoreAwareComponent.prototype.getComponent = function () {
+        return this.entities.get("entity");
     };
     return StoreAwareComponent;
 }(aframe_typescript_toolkit_1.ComponentWrapper);
-exports.default = StoreAwareComponent;
+exports.StoreAwareComponent = StoreAwareComponent;
 
 /***/ }),
 /* 5 */

@@ -1,5 +1,5 @@
-import Manager from "./manager";
+import { RepositoryConnector } from "./connectors";
 import StoreAware from "./store_aware";
-import StoreAwareComponent from "./store_aware_component";
+import { StoreAwareComponent, StoreAwareRepositoryComponent } from "./store_aware_component";
 import { RepositoryMember, BaseMap, BaseRepository } from "./core";
-export { Manager, StoreAware, StoreAwareComponent, BaseMap, BaseRepository, RepositoryMember, };
+export { RepositoryConnector, StoreAware, StoreAwareComponent, StoreAwareRepositoryComponent, BaseMap, BaseRepository, RepositoryMember, };

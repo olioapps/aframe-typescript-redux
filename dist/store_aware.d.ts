@@ -1,9 +1,8 @@
 import { Store } from "redux";
-export default class StoreAware<S, P> {
-    protected localProps: P;
+export default class StoreAware<PROPS = {}> {
+    protected localProps: PROPS;
     protected store: Store;
-    constructor(store: Store, props?: P);
-    componentShouldUpdate(props: P, nextProps: P): boolean;
-    componentWillReceiveProps(props: P, nextProps: P): void;
-    render(): void;
+    constructor(store: Store, props?: PROPS);
+    componentShouldUpdate(props: PROPS, nextProps: PROPS): boolean;
+    componentWillReceiveProps(props: PROPS, nextProps: PROPS): void;
 }

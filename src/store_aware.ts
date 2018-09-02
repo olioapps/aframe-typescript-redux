@@ -1,15 +1,15 @@
 import { Store } from "redux"
 
-export default class StoreAware<S, P> {
-    protected localProps: P
+export default class StoreAware<PROPS = {}> {
+    protected localProps: PROPS
     protected store: Store
 
-    constructor(store: Store, props?: P) {
+    constructor(store: Store, props?: PROPS) {
         this.localProps = Object.assign({}, props)
         this.store = store
 
         store.subscribe( () => {
-            const latestStoreState: S = store.getState()
+            const latestStoreState = store.getState()
             const keys = Object.keys(this.localProps)
 
             const nextProps = keys.reduce( 
@@ -23,23 +23,17 @@ export default class StoreAware<S, P> {
                 if (this.componentShouldUpdate(this.localProps, nextProps)) {
                     this.componentWillReceiveProps(this.localProps, nextProps)
                     this.localProps = {...nextProps}
-
-                    this.render()
                 }
             }
         })
     }
 
-    componentShouldUpdate(props: P, nextProps: P): boolean {
+    componentShouldUpdate(props: PROPS, nextProps: PROPS): boolean {
         // override
-        return true
+        return props !== nextProps
     }
 
-    componentWillReceiveProps(props: P, nextProps: P): void {
-        // override
-    }
-
-    render() {
+    componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
         // override
     }
 }

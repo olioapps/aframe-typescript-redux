@@ -57,6 +57,21 @@ exports.default = StoreAware;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", { value: true });
+var store_aware_1 = __webpack_require__(0);
+exports.StoreAware = store_aware_1.default;
+var aframe_wrapper_store_aware_1 = __webpack_require__(2);
+exports.StoreAwareComponent = aframe_wrapper_store_aware_1.StoreAwareComponent;
+exports.StoreAwareSystem = aframe_wrapper_store_aware_1.StoreAwareSystem;
+exports.StoreAwareRepositoryComponent = aframe_wrapper_store_aware_1.StoreAwareRepositoryComponent;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 var __extends = this && this.__extends || function () {
     var extendStatics = function (d, b) {
         extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
@@ -75,13 +90,91 @@ var __extends = this && this.__extends || function () {
     };
 }();
 Object.defineProperty(exports, "__esModule", { value: true });
+var aframe_typescript_toolkit_1 = __webpack_require__(3);
 var store_aware_1 = __webpack_require__(0);
-var GenericPluralConnector = /** @class */function (_super) {
-    __extends(GenericPluralConnector, _super);
-    function GenericPluralConnector(store, props) {
-        return _super.call(this, store, props) || this;
+var StoreAwareComponent = /** @class */function (_super) {
+    __extends(StoreAwareComponent, _super);
+    function StoreAwareComponent(store, name, props, schema) {
+        var _this = _super.call(this, name, schema || {}) || this;
+        _this.sharedState = new Map();
+        var that = _this;
+        _this.storeAware = new ( /** @class */function (_super) {
+            __extends(Connector, _super);
+            function Connector(store, props) {
+                return _super.call(this, store, props) || this;
+            }
+            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
+                that.componentWillReceiveProps(props, nextProps);
+            };
+            return Connector;
+        }(store_aware_1.default))(store, props);
+        _this.store = store;
+        return _this;
     }
-    GenericPluralConnector.prototype.componentWillReceiveProps = function (props, nextProps) {
+    StoreAwareComponent.prototype.keyOnComponentInit = function (component) {
+        return "_";
+    };
+    StoreAwareComponent.prototype.init = function () {
+        var key = this.keyOnComponentInit(this);
+        this.sharedState.set(key, this);
+    };
+    StoreAwareComponent.prototype.keyOnComponenGet = function () {
+        return "_";
+    };
+    StoreAwareComponent.prototype.getComponent = function () {
+        var key = this.keyOnComponenGet();
+        return this.sharedState.get(key);
+    };
+    return StoreAwareComponent;
+}(aframe_typescript_toolkit_1.ComponentWrapper);
+exports.StoreAwareComponent = StoreAwareComponent;
+/**
+ * Watches the whole store
+ */
+var StoreAwareSystem = /** @class */function (_super) {
+    __extends(StoreAwareSystem, _super);
+    function StoreAwareSystem(store, name, props, schema) {
+        var _this = _super.call(this, name, schema || {}) || this;
+        _this.sharedState = new Map();
+        _this.store = store;
+        var that = _this;
+        _this.storeAware = new ( /** @class */function (_super) {
+            __extends(Connector, _super);
+            function Connector(store, props) {
+                return _super.call(this, store, props) || this;
+            }
+            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
+                that.componentWillReceiveProps(props, nextProps);
+            };
+            return Connector;
+        }(store_aware_1.default))(store, props);
+        _this.store = store;
+        return _this;
+    }
+    StoreAwareSystem.prototype.getSharedState = function () {
+        var state = this.sharedState.get("_");
+        if (!state) {
+            this.setSharedState(null);
+        } else {
+            return state;
+        }
+    };
+    StoreAwareSystem.prototype.setSharedState = function (sharedState) {
+        this.sharedState.set("_", sharedState);
+    };
+    return StoreAwareSystem;
+}(aframe_typescript_toolkit_1.SystemWrapper);
+exports.StoreAwareSystem = StoreAwareSystem;
+/**
+ * Maintains a 1:1 relationship between a store object we want to watch, and
+ * an aframe entity component instance
+ */
+var StoreAwareRepositoryComponent = /** @class */function (_super) {
+    __extends(StoreAwareRepositoryComponent, _super);
+    function StoreAwareRepositoryComponent(store, name, props, schema) {
+        return _super.call(this, store, name, props, schema) || this;
+    }
+    StoreAwareRepositoryComponent.prototype.componentWillReceiveProps = function (props, nextProps) {
         var _this = this;
         // create entities that should exist
         var toCreate = this.determineEntitiesToCreate(props, nextProps);
@@ -99,34 +192,27 @@ var GenericPluralConnector = /** @class */function (_super) {
             return _this.updateEntity(STORE_OBJECT);
         });
     };
-    return GenericPluralConnector;
-}(store_aware_1.default);
-var RepositoryConnector = /** @class */function (_super) {
-    __extends(RepositoryConnector, _super);
-    function RepositoryConnector(store, props) {
-        return _super.call(this, store, props) || this;
-    }
-    RepositoryConnector.prototype.determineEntitiesToCreate = function (props, nextProps) {
-        var oldR = this.getRepository(props);
-        var newR = this.getRepository(nextProps);
+    StoreAwareRepositoryComponent.prototype.determineEntitiesToCreate = function (props, nextProps) {
+        var oldR = this.resolveRepository(props);
+        var newR = this.resolveRepository(nextProps);
         return newR.sort.filter(function (b) {
             return oldR.sort.indexOf(b) < 0;
         }).map(function (i) {
             return newR.items[i];
         });
     };
-    RepositoryConnector.prototype.determineEntitiesToDestroy = function (props, nextProps) {
-        var oldR = this.getRepository(props);
-        var newR = this.getRepository(nextProps);
+    StoreAwareRepositoryComponent.prototype.determineEntitiesToDestroy = function (props, nextProps) {
+        var oldR = this.resolveRepository(props);
+        var newR = this.resolveRepository(nextProps);
         return oldR.sort.filter(function (b) {
             return newR.sort.indexOf(b) < 0;
         }).map(function (i) {
             return oldR.items[i];
         });
     };
-    RepositoryConnector.prototype.determineEntitiesToUpdate = function (props, nextProps) {
-        var oldR = this.getRepository(props);
-        var newR = this.getRepository(nextProps);
+    StoreAwareRepositoryComponent.prototype.determineEntitiesToUpdate = function (props, nextProps) {
+        var oldR = this.resolveRepository(props);
+        var newR = this.resolveRepository(nextProps);
         var toDestroyIds = this.determineEntitiesToDestroy(props, nextProps).map(function (STORE_OBJECT) {
             return STORE_OBJECT.id;
         });
@@ -136,132 +222,6 @@ var RepositoryConnector = /** @class */function (_super) {
         return toUpdate.map(function (i) {
             return newR.items[i];
         });
-    };
-    return RepositoryConnector;
-}(GenericPluralConnector);
-exports.RepositoryConnector = RepositoryConnector;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var EntityBuilder = /** @class */ (function () {
-    function EntityBuilder(type) {
-        this.entity = document.createElement(type);
-    }
-    EntityBuilder.prototype.set = function (key, attribute) {
-        this.entity.setAttribute(key, attribute);
-        return this;
-    };
-    EntityBuilder.prototype.attachx = function (f) {
-        f.el.appendChild(this.entity);
-    };
-    EntityBuilder.prototype.attach = function (parent) {
-        if (!!parent) {
-            // a parent was specified
-            if ("el" in parent) {
-                // there's an element in this parent; attach the entity
-                // being created there
-                parent.el.appendChild(this.entity);
-            }
-            else {
-                // there isn't; attach directly
-                parent.appendChild(this.entity);
-            }
-        }
-        else {
-            // attach to the scene by default
-            document.querySelector("a-scene").appendChild(this.entity);
-        }
-        return this;
-    };
-    return EntityBuilder;
-}());
-exports.default = EntityBuilder;
-
-
-/***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var connectors_1 = __webpack_require__(1);
-exports.RepositoryConnector = connectors_1.RepositoryConnector;
-var store_aware_1 = __webpack_require__(0);
-exports.StoreAware = store_aware_1.default;
-var store_aware_component_1 = __webpack_require__(4);
-exports.StoreAwareComponent = store_aware_component_1.StoreAwareComponent;
-exports.StoreAwareRepositoryComponent = store_aware_component_1.StoreAwareRepositoryComponent;
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var __extends = this && this.__extends || function () {
-    var extendStatics = function (d, b) {
-        extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function (d, b) {
-            d.__proto__ = b;
-        } || function (d, b) {
-            for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-        };
-        return extendStatics(d, b);
-    };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() {
-            this.constructor = d;
-        }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-}();
-Object.defineProperty(exports, "__esModule", { value: true });
-var aframe_typescript_toolkit_1 = __webpack_require__(5);
-var store_aware_1 = __webpack_require__(0);
-var connectors_1 = __webpack_require__(1);
-/**
- * Maintains a 1:1 relationship between a store object we want to watch, and
- * an aframe entity component instance
- */
-var StoreAwareRepositoryComponent = /** @class */function (_super) {
-    __extends(StoreAwareRepositoryComponent, _super);
-    function StoreAwareRepositoryComponent(store, name, props, schema) {
-        var _this = _super.call(this, name, schema) || this;
-        _this.entities = new Map();
-        var that = _this;
-        _this.storeAware = new ( /** @class */function (_super) {
-            __extends(Connector, _super);
-            function Connector(store, props) {
-                return _super.call(this, store, props) || this;
-            }
-            Connector.prototype.getRepository = function (props) {
-                return that.resolveRepository(props);
-            };
-            Connector.prototype.destroyEntity = function (entity) {
-                that.destroyEntity(entity);
-            };
-            Connector.prototype.createEntity = function (entity) {
-                that.createEntity(entity);
-            };
-            Connector.prototype.updateEntity = function (entity) {
-                that.updateEntity(entity);
-            };
-            return Connector;
-        }(connectors_1.RepositoryConnector))(store, props);
-        _this.store = store;
-        return _this;
-    }
-    StoreAwareRepositoryComponent.prototype.componentShouldUpdate = function (props, nextProps) {
-        // override
-        return true;
     };
     StoreAwareRepositoryComponent.prototype.onStoreObjectUpdate = function (entity, component) {
         // override noop
@@ -292,10 +252,10 @@ var StoreAwareRepositoryComponent = /** @class */function (_super) {
         }
     };
     StoreAwareRepositoryComponent.prototype.getEntityComponentsFor = function (id) {
-        return this.entities.get(id);
+        return this.sharedState.get(id);
     };
     StoreAwareRepositoryComponent.prototype.updateEntityComponents = function (id, w) {
-        this.entities.set(id, w);
+        this.sharedState.set(id, w);
     };
     //
     // -- aframe component lifecycle functions
@@ -308,76 +268,75 @@ var StoreAwareRepositoryComponent = /** @class */function (_super) {
         this.updateEntityComponents(storeObject.id, this);
     };
     return StoreAwareRepositoryComponent;
-}(aframe_typescript_toolkit_1.ComponentWrapper);
+}(StoreAwareComponent);
 exports.StoreAwareRepositoryComponent = StoreAwareRepositoryComponent;
-var StoreAwareComponent = /** @class */function (_super) {
-    __extends(StoreAwareComponent, _super);
-    function StoreAwareComponent(store, name, props, schema) {
-        var _this = _super.call(this, name, schema) || this;
-        _this.entities = new Map();
-        var that = _this;
-        _this.storeAware = new ( /** @class */function (_super) {
-            __extends(Connector, _super);
-            function Connector(store, props) {
-                return _super.call(this, store, props) || this;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var aframe_wrapper_1 = __webpack_require__(4);
+exports.ComponentWrapper = aframe_wrapper_1.ComponentWrapper;
+exports.SystemWrapper = aframe_wrapper_1.SystemWrapper;
+var entity_builder_1 = __webpack_require__(5);
+exports.EntityBuilder = entity_builder_1.EntityBuilder;
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// helpers
+Object.defineProperty(exports, "__esModule", { value: true });
+var hasMethod = function (obj, name) {
+    var desc = Object.getOwnPropertyDescriptor(obj, name);
+    return !!desc && typeof desc.value === "function";
+};
+var getInstanceMethodNames = function (obj, stop) {
+    var array = [];
+    var proto = Object.getPrototypeOf(obj);
+    while (proto && proto !== stop) {
+        Object.getOwnPropertyNames(proto)
+            .forEach(function (name) {
+            if (name !== "constructor") {
+                if (hasMethod(proto, name)) {
+                    array.push(name);
+                }
             }
-            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
-                that.componentWillReceiveProps(props, nextProps);
-            };
-            return Connector;
-        }(store_aware_1.default))(store, props);
-        _this.store = store;
-        return _this;
+        });
+        proto = Object.getPrototypeOf(proto);
     }
-    StoreAwareComponent.prototype.init = function () {
-        console.log(this);
-        this.entities.set("entity", this);
-    };
-    StoreAwareComponent.prototype.getComponent = function () {
-        return this.entities.get("entity");
-    };
-    return StoreAwareComponent;
-}(aframe_typescript_toolkit_1.ComponentWrapper);
-exports.StoreAwareComponent = StoreAwareComponent;
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var component_wrapper_1 = __webpack_require__(6);
-exports.ComponentWrapper = component_wrapper_1.default;
-var entity_builder_1 = __webpack_require__(2);
-exports.EntityBuilder = entity_builder_1.default;
-
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var entity_builder_1 = __webpack_require__(2);
+    return array;
+};
 var ComponentWrapper = /** @class */ (function () {
     function ComponentWrapper(name, schema) {
-        var _this = this;
         this.name = name;
-        var funcs = ComponentWrapper.getInstanceMethodNames(this, Object.prototype);
-        funcs.forEach(function (k) { return _this[k] = _this[k]; });
-        this["schema"] = schema || {};
+        this.schema = schema || {};
     }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // default aframe core function implementations
+    ComponentWrapper.prototype.remove = function () { };
+    ComponentWrapper.prototype.update = function (oldData) { };
+    ComponentWrapper.prototype.extendSchema = function (update) { };
+    ComponentWrapper.prototype.flushToDOM = function () { };
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // default aframe core function implementations
     ComponentWrapper.prototype.init = function () { };
     ComponentWrapper.prototype.pause = function () { };
     ComponentWrapper.prototype.play = function () { };
-    ComponentWrapper.prototype.remove = function () { };
-    ComponentWrapper.prototype.update = function (oldData) { };
-    ComponentWrapper.prototype.extendSchema = function (update) { };
-    ComponentWrapper.prototype.flushToDOM = function () { };
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // special wrapper functions implementations
+    ComponentWrapper.prototype.merge = function () {
+        var _this = this;
+        var funcs = getInstanceMethodNames(this, Object.prototype);
+        funcs.forEach(function (k) { return _this[k] = _this[k]; });
+    };
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // special wrapper functions implementations
     ComponentWrapper.prototype.destroy = function () {
@@ -387,37 +346,110 @@ var ComponentWrapper = /** @class */ (function () {
         }
     };
     ComponentWrapper.prototype.register = function () {
+        this.merge();
         AFRAME.registerComponent(this.name, this);
-    };
-    ComponentWrapper.prototype.buildEntity = function (type) {
-        return new entity_builder_1.default(type);
-    };
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // helpers
-    ComponentWrapper.hasMethod = function (obj, name) {
-        var desc = Object.getOwnPropertyDescriptor(obj, name);
-        return !!desc && typeof desc.value === "function";
-    };
-    ComponentWrapper.getInstanceMethodNames = function (obj, stop) {
-        var array = [];
-        var proto = Object.getPrototypeOf(obj);
-        while (proto && proto !== stop) {
-            Object.getOwnPropertyNames(proto)
-                .forEach(function (name) {
-                if (name !== "constructor") {
-                    if (ComponentWrapper.hasMethod(proto, name)) {
-                        array.push(name);
-                    }
-                }
-            });
-            proto = Object.getPrototypeOf(proto);
-        }
-        return array;
     };
     return ComponentWrapper;
 }());
-exports.default = ComponentWrapper;
+exports.ComponentWrapper = ComponentWrapper;
+var SystemWrapper = /** @class */ (function () {
+    function SystemWrapper(name, schema) {
+        this.name = name;
+        this.schema = schema;
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // default aframe core function implementations
+    SystemWrapper.prototype.init = function () { };
+    SystemWrapper.prototype.pause = function () { };
+    SystemWrapper.prototype.play = function () { };
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // special wrapper functions implementations
+    SystemWrapper.prototype.merge = function () {
+        var _this = this;
+        var funcs = getInstanceMethodNames(this, Object.prototype);
+        funcs.forEach(function (k) { return _this[k] = _this[k]; });
+    };
+    SystemWrapper.prototype.register = function () {
+        this.merge();
+        AFRAME.registerSystem(this.name, this);
+    };
+    return SystemWrapper;
+}());
+exports.SystemWrapper = SystemWrapper;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var EntityBuilder = /** @class */ (function () {
+    function EntityBuilder(type, attributes) {
+        this.entity = document.createElement(type);
+        if (attributes) {
+            this.setAttributes(attributes);
+        }
+    }
+    EntityBuilder.create = function (type, attributes, children) {
+        var builder = new EntityBuilder(type, attributes);
+        if (!!children) {
+            children.forEach(function (c) {
+                c.attachTo(builder.entity);
+            });
+        }
+        return builder;
+    };
+    EntityBuilder.prototype.set = function (a, b, c) {
+        if (!!b && !!c) {
+            this.entity.setAttribute(a, b, c);
+        }
+        else if (!!b) {
+            this.entity.setAttribute(a, b || "");
+        }
+        else {
+            this.entity.setAttribute(a, "");
+        }
+        return this;
+    };
+    EntityBuilder.prototype.setAttributes = function (attributes) {
+        var _this = this;
+        Object.keys(attributes).forEach(function (k) {
+            _this.set(k, attributes[k]);
+        });
+        return this;
+    };
+    EntityBuilder.prototype.toEntity = function () {
+        return this.entity;
+    };
+    EntityBuilder.prototype.attachTo = function (parent) {
+        if (!parent) {
+            // attach to the scene by default
+            document.querySelector("a-scene").appendChild(this.entity);
+            return this;
+        }
+        // a parent was specified
+        if ("el" in parent) {
+            // there's an element in this parent; attach the entity
+            // being created there
+            parent.el.appendChild(this.entity);
+        }
+        else {
+            // there isn't; attach directly
+            if ("appendChild" in parent) {
+                parent.appendChild(this.entity);
+            }
+            else {
+                // parent.attach(this.entity)
+            }
+        }
+        return this;
+    };
+    return EntityBuilder;
+}());
+exports.EntityBuilder = EntityBuilder;
 
 
 /***/ })
-],[3]);
+],[1]);

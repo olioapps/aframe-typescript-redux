@@ -1,13 +1,12 @@
-import { RepositoryConnector } from "./connectors"
 import StoreAware from "./store_aware"
-import { StoreAwareComponent, StoreAwareRepositoryComponent } from "./store_aware_component"
+import { StoreAwareComponent, StoreAwareSystem, StoreAwareRepositoryComponent } from "./aframe_wrapper_store_aware"
 import { RepositoryMember, BaseMap, BaseRepository } from "./core"
 
 export {
-    RepositoryConnector,
     StoreAware,
     StoreAwareComponent,
     StoreAwareRepositoryComponent,
+    StoreAwareSystem,
     BaseMap,
     BaseRepository,
     RepositoryMember,

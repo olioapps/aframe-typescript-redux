@@ -1,54 +1,65 @@
 import { Store } from "redux"
 import { ComponentWrapper, SystemWrapper } from "aframe-typescript-toolkit"
 import StoreAware from "./store_aware"
-import { BaseRepository, RepositoryMember } from "./core"
+import { BaseRepository, RepositoryMember, BaseMap } from "./core"
+
+interface CanReceiveProps<PROPS> {
+    componentWillReceiveProps: (props: PROPS, nextProps: PROPS) => void
+}
+
+class Connector<PROPS> extends StoreAware<PROPS> {
+    private receiver: CanReceiveProps<PROPS>
+    constructor(store: Store, props: PROPS, receiver: CanReceiveProps<PROPS>) {
+        super(store, props)
+        this.receiver = receiver
+    }
+
+    componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
+        this.receiver.componentWillReceiveProps(props, nextProps)
+    }
+}
+
+class SharedStateContainer<SHARED_STATE> {
+    private sharedState: Map<string, SHARED_STATE> = new Map<string, SHARED_STATE>()
+
+    get(): SHARED_STATE {
+        const state: SHARED_STATE = <SHARED_STATE> this.sharedState.get("_")
+        if (!state) {
+           this.set(null)
+        } else {
+            return state
+        }
+    }
+
+    set(sharedState: SHARED_STATE): void {
+        this.sharedState.set("_", sharedState)
+    }
+}
 
 export abstract class StoreAwareComponent<
     PROPS, 
+    SHARED_STATE = {},
     SCHEMA = {},
 > extends ComponentWrapper<SCHEMA> {
 
-    store: Store
     storeAware: StoreAware<PROPS>
-    protected sharedState: Map<string, this> = new Map<string, this>()
+    store: Store
+    private sharedState = new SharedStateContainer<SHARED_STATE>()
 
     constructor(store: Store, name: string, props?: PROPS, schema?: {}) {
         super(name, schema || {})
-
-        const that = this
-        this.storeAware = new (class Connector extends StoreAware<PROPS> {
-
-            constructor(store: Store, props: PROPS) {
-                super(store, props)
-            }
-
-            componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
-                that.componentWillReceiveProps(props, nextProps)
-            }
-            
-        })(store, props)
-
+        this.storeAware = new Connector<PROPS>(store, props, this)
         this.store = store
     }
 
     abstract componentWillReceiveProps(props: PROPS, nextProps: PROPS): void
 
-    keyOnComponentInit(component: this): string {
-        return "_"
+    getSharedState(): SHARED_STATE {
+        return this.sharedState.get()
     }
 
-    init() {
-        const key = this.keyOnComponentInit(this)
-        this.sharedState.set(key, this)
-    }
-
-    keyOnComponenGet(): string {
-        return "_"
-    }
-
-    getComponent(): this {
-        const key = this.keyOnComponenGet()
-        return this.sharedState.get(key)
+    setSharedState(sharedState: SHARED_STATE): void {
+        return this.sharedState.set(sharedState)
     }
 }
 
@@ -63,40 +74,23 @@ export abstract class StoreAwareSystem<
     
     storeAware: StoreAware<PROPS>
     store: Store
-    sharedState: Map<string, SHARED_STATE> = new Map<string, SHARED_STATE>()
+    private sharedState = new SharedStateContainer<SHARED_STATE>()
 
     constructor(store: Store, name: string, props?: PROPS, schema?: {}) {
         super(name, schema || {})
         this.store = store
-
-        const that = this
-        this.storeAware = new (class Connector extends StoreAware<PROPS> {
-
-            constructor(store: Store, props: PROPS) {
-                super(store, props)
-            }
-
-            componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
-                that.componentWillReceiveProps(props, nextProps)
-            }
-        })(store, props)
-
+        this.storeAware = new Connector<PROPS>(store, props, this)
         this.store = store
     }
 
     abstract componentWillReceiveProps(props: PROPS, nextProps: PROPS): void
 
     getSharedState(): SHARED_STATE {
-        const state: SHARED_STATE = <SHARED_STATE> this.sharedState.get("_")
-        if (!state) {
-           this.setSharedState(null)
-        } else {
-            return state
-        }
+        return this.sharedState.get()
     }
 
     setSharedState(sharedState: SHARED_STATE): void {
-        this.sharedState.set("_", sharedState)
+        return this.sharedState.set(sharedState)
     }
 }
 
@@ -109,10 +103,11 @@ export abstract class StoreAwareRepositoryComponent<
     STORE_OBJECT extends RepositoryMember, 
     STORE_REPOSITORY extends BaseRepository<STORE_OBJECT>, 
     SCHEMA = {},
-> extends StoreAwareComponent<PROPS, SCHEMA> {
+> extends StoreAwareComponent<PROPS, Map<string, any>, SCHEMA> {
 
     constructor(store: Store, name: string, props?: PROPS, schema?: {}) {
         super(store, name, props, schema)
+        this.setSharedState(new Map<string, any>())
     }
 
     componentWillReceiveProps(props: PROPS, nextProps: PROPS): void {
@@ -197,11 +192,11 @@ export abstract class StoreAwareRepositoryComponent<
     }
 
     private getEntityComponentsFor(id: string): this {
-        return this.sharedState.get(id)
+        return this.getSharedState().get(id)
     }
 
     private updateEntityComponents(id: string, w: this) {
-        this.sharedState.set(id, w)
+        this.getSharedState().set(id, w)
     }
 
     //
@@ -212,8 +207,126 @@ export abstract class StoreAwareRepositoryComponent<
      * by default, register aframe component instance
      */
     init() {
+        super.init()
         const storeObject: STORE_OBJECT = this.resolveStoreObject(this.data)
         this.updateEntityComponents(storeObject.id, this)
     }
 
+}
+
+interface ReduxConnectedComponentSchema {
+    readonly propsToHandlerMapping: BaseMap<string>
+}
+
+export class ReduxConnectedComponent extends ComponentWrapper<ReduxConnectedComponentSchema, ReduxConnectedSystem> {
+
+    constructor() {
+        super("redux-connected")
+    }
+
+    init() {
+        this.system.connect(this)
+    }
+
+}
+
+interface ReduxConnectedProps {}
+
+interface ReduxConnectorSharedState {
+    propsToComponentMapping: BaseMap<ComponentFunction[]>
+}
+
+interface ComponentFunction {
+    component: ReduxConnectedComponent
+    callback: string
+}
+
+export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSharedState> {
+    constructor(store: Store, props: {}) {
+        super(store, "redux-connected", props)
+
+        this.setSharedState({
+            propsToComponentMapping: {}
+        })
+        new ReduxConnectedComponent().register()
+    }
+
+    connect(component: ReduxConnectedComponent) {
+        // add store dispatch
+        component.el["dispatch"] = this.store.dispatch
+
+        // handle cleaning up - remove references to destroyed entities
+        const that = this
+        component.el.addEventListener("componentremoved", (evt) => {
+            const state = that.getSharedState()
+            const { propsToComponentMapping } = state
+            const updated: BaseMap<ComponentFunction[]> = Object.keys(propsToComponentMapping).reduce( 
+                (acc, k) => {
+                    return {
+                        ...acc,
+                        [k]: propsToComponentMapping[k].filter( f => f.component.el != component.el)
+                    }
+                },
+                {}
+            )
+
+            that.setSharedState({
+                propsToComponentMapping: updated,
+            })
+
+            // console.log("after: ", that.getSharedState().propsToComponentMapping)
+        })
+
+        const propsToHandlerMapping = component.data
+
+        const state = this.getSharedState()
+
+        const propsToComponentMapping: BaseMap<ComponentFunction[]> = Object.keys(propsToHandlerMapping)
+            .reduce( (acc, propKey) => {
+                const propComponentFunctions = state.propsToComponentMapping[propKey] || []
+                const callback = propsToHandlerMapping[propKey]
+                
+                return {
+                    ...acc,
+                    [propKey]: [...propComponentFunctions, {
+                        component,
+                        callback,
+                    }]
+                }}, 
+                { ...state.propsToComponentMapping }
+            )
+
+        this.setSharedState({
+            propsToComponentMapping, 
+        })
+
+        // console.log(this.getSharedState())
+    }
+
+    componentWillReceiveProps(props: ReduxConnectedProps, nextProps: ReduxConnectedProps) {
+        const state = this.getSharedState()
+        const { propsToComponentMapping } = state
+        Object.keys(propsToComponentMapping).forEach( k => {
+            if (props[k] !== nextProps[k]) {
+                // console.log("!! change detected for", k)
+                // notify listeners for that change
+                propsToComponentMapping[k].forEach( listener => {
+                    listener.component.el.emit(listener.callback, {
+                        oldState: props[k],
+                        newState: nextProps[k],
+                    })
+                })
+            }
+        })
+    }
+}
+
+export function dispatch(component: ComponentWrapper, action: {}): void {
+    if (!component.el) {
+        return
+    }
+    const dispatcher = component.el["dispatch"]
+    if (dispatcher) {
+        dispatcher(action)
+    }
 }

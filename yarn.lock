@@ -175,9 +175,9 @@ aframe-extras@^4.1.2:
   dependencies:
     three-pathfinding "^0.5.5"
 
-aframe-typescript-toolkit@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.4.tgz#fc5769c8308d04efc1796b73ad49c038b8e652e8"
+aframe-typescript-toolkit@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.5.tgz#99b2ba1816c6539964c981d4ca50112cbb85321b"
   dependencies:
     "@types/aframe" "^0.7.2"
     "@types/three" "^0.92.17"

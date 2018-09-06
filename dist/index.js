@@ -64,6 +64,8 @@ var aframe_wrapper_store_aware_1 = __webpack_require__(2);
 exports.StoreAwareComponent = aframe_wrapper_store_aware_1.StoreAwareComponent;
 exports.StoreAwareSystem = aframe_wrapper_store_aware_1.StoreAwareSystem;
 exports.StoreAwareRepositoryComponent = aframe_wrapper_store_aware_1.StoreAwareRepositoryComponent;
+exports.dispatch = aframe_wrapper_store_aware_1.dispatch;
+exports.ReduxConnectedSystem = aframe_wrapper_store_aware_1.ReduxConnectedSystem;
 
 /***/ }),
 /* 2 */
@@ -89,41 +91,62 @@ var __extends = this && this.__extends || function () {
         d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
     };
 }();
+var __assign = this && this.__assign || function () {
+    __assign = Object.assign || function (t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var aframe_typescript_toolkit_1 = __webpack_require__(3);
 var store_aware_1 = __webpack_require__(0);
+var Connector = /** @class */function (_super) {
+    __extends(Connector, _super);
+    function Connector(store, props, receiver) {
+        var _this = _super.call(this, store, props) || this;
+        _this.receiver = receiver;
+        return _this;
+    }
+    Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
+        this.receiver.componentWillReceiveProps(props, nextProps);
+    };
+    return Connector;
+}(store_aware_1.default);
+var SharedStateContainer = /** @class */function () {
+    function SharedStateContainer() {
+        this.sharedState = new Map();
+    }
+    SharedStateContainer.prototype.get = function () {
+        var state = this.sharedState.get("_");
+        if (!state) {
+            this.set(null);
+        } else {
+            return state;
+        }
+    };
+    SharedStateContainer.prototype.set = function (sharedState) {
+        this.sharedState.set("_", sharedState);
+    };
+    return SharedStateContainer;
+}();
 var StoreAwareComponent = /** @class */function (_super) {
     __extends(StoreAwareComponent, _super);
     function StoreAwareComponent(store, name, props, schema) {
         var _this = _super.call(this, name, schema || {}) || this;
-        _this.sharedState = new Map();
-        var that = _this;
-        _this.storeAware = new ( /** @class */function (_super) {
-            __extends(Connector, _super);
-            function Connector(store, props) {
-                return _super.call(this, store, props) || this;
-            }
-            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
-                that.componentWillReceiveProps(props, nextProps);
-            };
-            return Connector;
-        }(store_aware_1.default))(store, props);
+        _this.sharedState = new SharedStateContainer();
+        _this.storeAware = new Connector(store, props, _this);
         _this.store = store;
         return _this;
     }
-    StoreAwareComponent.prototype.keyOnComponentInit = function (component) {
-        return "_";
+    StoreAwareComponent.prototype.getSharedState = function () {
+        return this.sharedState.get();
     };
-    StoreAwareComponent.prototype.init = function () {
-        var key = this.keyOnComponentInit(this);
-        this.sharedState.set(key, this);
-    };
-    StoreAwareComponent.prototype.keyOnComponenGet = function () {
-        return "_";
-    };
-    StoreAwareComponent.prototype.getComponent = function () {
-        var key = this.keyOnComponenGet();
-        return this.sharedState.get(key);
+    StoreAwareComponent.prototype.setSharedState = function (sharedState) {
+        return this.sharedState.set(sharedState);
     };
     return StoreAwareComponent;
 }(aframe_typescript_toolkit_1.ComponentWrapper);
@@ -135,32 +158,17 @@ var StoreAwareSystem = /** @class */function (_super) {
     __extends(StoreAwareSystem, _super);
     function StoreAwareSystem(store, name, props, schema) {
         var _this = _super.call(this, name, schema || {}) || this;
-        _this.sharedState = new Map();
+        _this.sharedState = new SharedStateContainer();
         _this.store = store;
-        var that = _this;
-        _this.storeAware = new ( /** @class */function (_super) {
-            __extends(Connector, _super);
-            function Connector(store, props) {
-                return _super.call(this, store, props) || this;
-            }
-            Connector.prototype.componentWillReceiveProps = function (props, nextProps) {
-                that.componentWillReceiveProps(props, nextProps);
-            };
-            return Connector;
-        }(store_aware_1.default))(store, props);
+        _this.storeAware = new Connector(store, props, _this);
         _this.store = store;
         return _this;
     }
     StoreAwareSystem.prototype.getSharedState = function () {
-        var state = this.sharedState.get("_");
-        if (!state) {
-            this.setSharedState(null);
-        } else {
-            return state;
-        }
+        return this.sharedState.get();
     };
     StoreAwareSystem.prototype.setSharedState = function (sharedState) {
-        this.sharedState.set("_", sharedState);
+        return this.sharedState.set(sharedState);
     };
     return StoreAwareSystem;
 }(aframe_typescript_toolkit_1.SystemWrapper);
@@ -172,7 +180,9 @@ exports.StoreAwareSystem = StoreAwareSystem;
 var StoreAwareRepositoryComponent = /** @class */function (_super) {
     __extends(StoreAwareRepositoryComponent, _super);
     function StoreAwareRepositoryComponent(store, name, props, schema) {
-        return _super.call(this, store, name, props, schema) || this;
+        var _this = _super.call(this, store, name, props, schema) || this;
+        _this.setSharedState(new Map());
+        return _this;
     }
     StoreAwareRepositoryComponent.prototype.componentWillReceiveProps = function (props, nextProps) {
         var _this = this;
@@ -252,10 +262,10 @@ var StoreAwareRepositoryComponent = /** @class */function (_super) {
         }
     };
     StoreAwareRepositoryComponent.prototype.getEntityComponentsFor = function (id) {
-        return this.sharedState.get(id);
+        return this.getSharedState().get(id);
     };
     StoreAwareRepositoryComponent.prototype.updateEntityComponents = function (id, w) {
-        this.sharedState.set(id, w);
+        this.getSharedState().set(id, w);
     };
     //
     // -- aframe component lifecycle functions
@@ -264,12 +274,98 @@ var StoreAwareRepositoryComponent = /** @class */function (_super) {
      * by default, register aframe component instance
      */
     StoreAwareRepositoryComponent.prototype.init = function () {
+        _super.prototype.init.call(this);
         var storeObject = this.resolveStoreObject(this.data);
         this.updateEntityComponents(storeObject.id, this);
     };
     return StoreAwareRepositoryComponent;
 }(StoreAwareComponent);
 exports.StoreAwareRepositoryComponent = StoreAwareRepositoryComponent;
+var ReduxConnectedComponent = /** @class */function (_super) {
+    __extends(ReduxConnectedComponent, _super);
+    function ReduxConnectedComponent() {
+        return _super.call(this, "redux-connected") || this;
+    }
+    ReduxConnectedComponent.prototype.init = function () {
+        this.system.connect(this);
+    };
+    return ReduxConnectedComponent;
+}(aframe_typescript_toolkit_1.ComponentWrapper);
+exports.ReduxConnectedComponent = ReduxConnectedComponent;
+var ReduxConnectedSystem = /** @class */function (_super) {
+    __extends(ReduxConnectedSystem, _super);
+    function ReduxConnectedSystem(store, props) {
+        var _this = _super.call(this, store, "redux-connected", props) || this;
+        _this.setSharedState({
+            propsToComponentMapping: {}
+        });
+        new ReduxConnectedComponent().register();
+        return _this;
+    }
+    ReduxConnectedSystem.prototype.connect = function (component) {
+        // add store dispatch
+        component.el["dispatch"] = this.store.dispatch;
+        // handle cleaning up - remove references to destroyed entities
+        var that = this;
+        component.el.addEventListener("componentremoved", function (evt) {
+            var state = that.getSharedState();
+            var propsToComponentMapping = state.propsToComponentMapping;
+            var updated = Object.keys(propsToComponentMapping).reduce(function (acc, k) {
+                var _a;
+                return __assign({}, acc, (_a = {}, _a[k] = propsToComponentMapping[k].filter(function (f) {
+                    return f.component.el != component.el;
+                }), _a));
+            }, {});
+            that.setSharedState({
+                propsToComponentMapping: updated
+            });
+            // console.log("after: ", that.getSharedState().propsToComponentMapping)
+        });
+        var propsToHandlerMapping = component.data;
+        var state = this.getSharedState();
+        var propsToComponentMapping = Object.keys(propsToHandlerMapping).reduce(function (acc, propKey) {
+            var _a;
+            var propComponentFunctions = state.propsToComponentMapping[propKey] || [];
+            var callback = propsToHandlerMapping[propKey];
+            return __assign({}, acc, (_a = {}, _a[propKey] = propComponentFunctions.concat([{
+                component: component,
+                callback: callback
+            }]), _a));
+        }, __assign({}, state.propsToComponentMapping));
+        this.setSharedState({
+            propsToComponentMapping: propsToComponentMapping
+        });
+        // console.log(this.getSharedState())
+    };
+    ReduxConnectedSystem.prototype.componentWillReceiveProps = function (props, nextProps) {
+        var state = this.getSharedState();
+        var propsToComponentMapping = state.propsToComponentMapping;
+        Object.keys(propsToComponentMapping).forEach(function (k) {
+            if (props[k] !== nextProps[k]) {
+                // console.log("!! change detected for", k)
+                // notify listeners for that change
+                propsToComponentMapping[k].forEach(function (listener) {
+                    listener.component.el.emit(listener.callback, {
+                        oldState: props[k],
+                        newState: nextProps[k]
+                    });
+                });
+            }
+        });
+    };
+    return ReduxConnectedSystem;
+}(StoreAwareSystem);
+exports.ReduxConnectedSystem = ReduxConnectedSystem;
+function dispatch(component, action) {
+    if (!component.el) {
+        return;
+    }
+    var dispatcher = component.el["dispatch"];
+    if (dispatcher) {
+        dispatcher(action);
+    }
+}
+exports.dispatch = dispatch;
 
 /***/ }),
 /* 3 */
@@ -348,6 +444,10 @@ var ComponentWrapper = /** @class */ (function () {
     ComponentWrapper.prototype.register = function () {
         this.merge();
         AFRAME.registerComponent(this.name, this);
+        return this;
+    };
+    ComponentWrapper.prototype.registerCallback = function (callbackName, fn) {
+        this.el.addEventListener(callbackName, fn.bind(this));
     };
     return ComponentWrapper;
 }());

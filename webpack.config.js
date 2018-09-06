@@ -44,6 +44,12 @@ var config = {
       return "file:///" + info.absoluteResourcePath;
     }
   },
+  output: {
+    path: path.resolve(__dirname, 'dist-umd'),
+    filename: 'index.js',
+    library: 'AframeRedux',
+    libraryTarget: 'umd'
+  },
   module: {
     rules: [
       {

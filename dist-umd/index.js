@@ -1,4 +1,14 @@
-webpackJsonp([0],[
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define([], factory);
+	else if(typeof exports === 'object')
+		exports["AframeRedux"] = factory();
+	else
+		root["AframeRedux"] = factory();
+})(typeof self !== 'undefined' ? self : this, function() {
+return webpackJsonpAframeRedux([0],[
 /* 0 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -553,3 +563,4 @@ exports.EntityBuilder = EntityBuilder;
 
 /***/ })
 ],[1]);
+});

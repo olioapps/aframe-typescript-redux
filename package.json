@@ -1,10 +1,10 @@
 {
   "name": "aframe-typescript-redux",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "src/index.ts",
   "scripts": {
     "build": "./scripts/fix_webvr.sh && cross-env NODE_ENV=production webpack --config ./webpack.config.js  --progress --profile --color --display-error-details --display-cached --bail",
-    "clean": "npm cache clear && rimraf -- dist",
+    "clean": "npm cache clear && rimraf -- dist && rimraf -- dist-umd",
     "test": "karma start"
   },
   "repository": {

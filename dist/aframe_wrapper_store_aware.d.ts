@@ -66,7 +66,7 @@ interface ComponentFunction {
     callback: string;
 }
 export declare class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSharedState> {
-    constructor(store: Store, props: {});
+    constructor(store: Store, props?: {});
     connect(component: ReduxConnectedComponent): void;
     componentWillReceiveProps(props: ReduxConnectedProps, nextProps: ReduxConnectedProps): void;
 }

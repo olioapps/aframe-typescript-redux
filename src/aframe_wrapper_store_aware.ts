@@ -242,7 +242,7 @@ interface ComponentFunction {
 }
 
 export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSharedState> {
-    constructor(store: Store, props: {}) {
+    constructor(store: Store, props?: {}) {
         super(store, "redux-connected", props)
 
         this.setSharedState({
@@ -284,7 +284,7 @@ export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSha
         const propsToComponentMapping: BaseMap<ComponentFunction[]> = Object.keys(propsToHandlerMapping)
             .reduce( (acc, propKey) => {
                 const propComponentFunctions = state.propsToComponentMapping[propKey] || []
-                const callback = propsToHandlerMapping[propKey]
+                const callback = propsToHandlerMapping[propKey] || propKey
                 
                 return {
                     ...acc,

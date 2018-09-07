@@ -56,7 +56,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var StoreAware = /** @class */function () {
     function StoreAware(store, props) {
         var _this = this;
-        this.localProps = Object.assign({}, props);
+        if (!props || Object.keys(props).length < 1) {
+            this.localProps = Object.assign({}, __assign({}, store.getState()));
+        } else {
+            this.localProps = Object.assign({}, props);
+        }
         this.store = store;
         store.subscribe(function () {
             var latestStoreState = store.getState();
@@ -363,7 +367,7 @@ var ReduxConnectedSystem = /** @class */function (_super) {
         var propsToComponentMapping = Object.keys(propsToHandlerMapping).reduce(function (acc, propKey) {
             var _a;
             var propComponentFunctions = state.propsToComponentMapping[propKey] || [];
-            var callback = propsToHandlerMapping[propKey];
+            var callback = propsToHandlerMapping[propKey] || propKey;
             return __assign({}, acc, (_a = {}, _a[propKey] = propComponentFunctions.concat([{
                 component: component,
                 callback: callback

@@ -5,7 +5,11 @@ export default class StoreAware<PROPS = {}> {
     protected store: Store
 
     constructor(store: Store, props?: PROPS) {
-        this.localProps = Object.assign({}, props)
+        if (!props || Object.keys(props).length < 1) {
+            this.localProps = Object.assign({}, {...store.getState()})
+        } else {
+            this.localProps = Object.assign({}, props)
+        }
         this.store = store
 
         store.subscribe( () => {

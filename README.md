@@ -11,7 +11,7 @@ We will be discussing the [complete example](examples/connected_component.html) 
 
 ## 1. Define a redux store
 
-Defining a simple redux store involves at least 3 main pieces -- the shape of the store, the root reducer, and any mutator actions. We accomplish this below:
+Defining a simple redux store involves at least 3 main pieces -- the shape of the store, the root reducer, and any mutator actions:
 
 ```javascript
 // define shape of store
@@ -53,11 +53,11 @@ console.log(store.getState())
 const system = new AframeRedux.ReduxConnectedSystem(store).register()
 ```
 
-Registering this AFrame system will cause `ReduxConnectedSystem` to forward state changes to any entities bound to the `redux-connected` comopnent as shown below.
+Instantiating a `ReduxConnectedSystem` and supplying your redux store will cause store changes to be forwarded to entities bound to the `redux-connected` component.
 
 ## 2. Create an aframe entity that is redux-connected
 
-Below is the html to create an aframe `a-text` entity which is given a component `my-component`, and is also redux connected via the compnent `redux-connected`:
+Below is the html to create an aframe `a-text` entity which is given a component `my-component`, and is also redux connected via `redux-connected`:
 
 ```html
 <a-text my-component redux-connected="count: count" 
@@ -66,7 +66,7 @@ Below is the html to create an aframe `a-text` entity which is given a component
 </a-text>
 ```
 
-By defining `redux-connected="count: count"` the entity will receive changes to the property `count` in the redux store via an event of the name `count`.
+Defining `redux-connected="count: count"` causes the entity to be notified of changes to the `count` property in the store, via an event of the name `count`.
 
 ## 3. Define `my-component` and add listeners for store changes
 

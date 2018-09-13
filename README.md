@@ -8,7 +8,7 @@ This project is our effort to make a development platform that can be used to cr
 - to be able to manage state the same way as other front end javascript/redux applications, and also to be able to think about the components in a familiar React-esque way.
 - to facililate easier onboarding for new and more experienced developers for rapid development and component creation.
 
-We will be discussing the [complete example](examples/connected_component.html) below.
+We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 
 ## OVERVIEW OF CONNECTING AN AFRAME COMPONENT TO A REDUX STORE
 

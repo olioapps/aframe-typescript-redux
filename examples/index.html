@@ -1,0 +1,56 @@
+<html>
+
+<head>
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
+    <script>
+        const initialState = {
+            count: 1
+        }
+        
+        const doAdd = () => ({ type: "DO_ADD" })
+
+        const store = Redux.createStore(
+            (state = initialState, action) => {
+            switch (action.type) {
+                case "DO_ADD":
+                    return { count: state.count + 1 }
+                default:
+                    return state
+            }
+        })
+        const system = new AframeRedux.ReduxConnectedSystem(store, initialState).register()
+
+        AFRAME.registerComponent("my-component", {
+            init: function () {
+                this.el.addEventListener("doAdd", function (event) {
+                    const score = event.detail.newState
+                    this.setAttribute("value", score)
+                })
+            }
+        })
+
+        setInterval(() => store.dispatch(doAdd()), 2000)
+
+        const dispatchAdd = () => {
+            store.dispatch(doAdd())
+        }
+    </script>
+</head>
+
+<body>
+    <a onclick="javascript:dispatchAdd()" id="clickMe" href="#">Click me to change store state and affect the scene</a>
+    <a-scene embedded antialias="true">
+        <a-text my-component redux-connected="count: doAdd" value="(press Click Me)" color="black"
+            position="0 2 -5">
+        </a-text>
+        <a-entity>
+            <a-sky color="#ECECEC"></a-sky>
+            <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
+        </a-entity>
+    </a-scene>
+</body>
+
+</html>

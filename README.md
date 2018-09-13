@@ -1,18 +1,45 @@
-# AFrame & Redux - What This Is
+# A-Frame + Redux
 
-At [Olio Apps](http://www.olioapps.com/), we are applying software engineering idioms from React and React Native development ecosystems to WebVR development.  
+At [Olio Apps](http://www.olioapps.com/), we are applying tools and practices from our experience creating React and React Native applications to engineering VR software for the web.  
 
-This project is our effort to make a development platform that can be used to create aframe components and subclasses which makes it easy to connect your VR components to a redux store, for these reasons:
+## Installation 
 
-- to facilitate the use of data driven logic.
-- to be able to manage state the same way as other front end javascript/redux applications, and also to be able to think about the components in a familiar React-esque way.
-- to facililate easier onboarding for new and more experienced developers for rapid development and component creation.
+### npm
+```javascript
+npm install --save aframe-typescript-redux
+// or yarn add aframe-typescript-redux
+```
+```javascript
+import * as AframeRedux from `aframe-typescript-redux`
+// or require('aframe-typescript-redux')
+```
+
+### cdn
+
+```html
+<!-- index.html -->
+...
+    <script 
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js">
+    </script>
+    <script
+        type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js">
+    </script>
+</head>
+```
+
+### local development
+```
+git clone https://github.com/aframevr/aframe.git
+cd aframe && npm install
+```
+## Redux Connected Aframe Componet Example
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 
 [![Foo](./docs/counter-example.gif)](https://codesandbox.io/s/o71qm45xy)
-
-## OVERVIEW OF CONNECTING AN AFRAME COMPONENT TO A REDUX STORE
 
 To summarize, we will be doing the following:
 
@@ -134,17 +161,12 @@ We defined a simple button outside of the scene to hold the click handler. When 
 <a onclick="javascript:onClick()" id="clickMe" href="#">Click Me</a>
 ```
 
-## Sequence diagram
+## Contact
+Email: [sayhi@olioapps.com](sayhi@olioapps.com)
 
-Pictured below are the sequence of events that lead from a user action (button click) to affecting the AFrame scene via redux action dispatch through `ReduxConnectedSystem`.
-
-![alt text](./docs/flow.png)
-
-```
-User -> Button: click
-Button -> Store: dispatch doAdd
-Store -> Store: increment count by 1
-Store -> ReduxConnectedSystem: notify that `count` has changed in the store
-ReduxConnectedSystem -> my-component: emit `count` event
-my-component -> my-component: update text value in the scene
-```
+## Additional Reading 
+- [redux](https://redux.js.org/)
+- [aframe](https://aframe.io/)
+- [aframe-typescript-toolkit](https://github.com/olioapps/aframe-typescript-toolkit)
+## License
+This program is free software and is distributed under an MIT License.

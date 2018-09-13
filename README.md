@@ -10,8 +10,7 @@ npm install --save aframe-typescript-redux
 // or yarn add aframe-typescript-redux
 ```
 ```javascript
-import * as AframeRedux from `aframe-typescript-redux`
-// or require('aframe-typescript-redux')
+import * as AframeRedux from "aframe-typescript-redux"
 ```
 
 ### cdn

@@ -60,9 +60,7 @@ In the example above, dispatching the `doAdd` action will increment the store's 
 ```javascript
 console.log(store.getState()) // { count: 1 }
 
-
 store.dispatch(doAdd()) // dispatch doAdd to the store
-
 
 console.log(store.getState()) // { count: 2 }
 ```

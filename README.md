@@ -132,12 +132,17 @@ We defined a simple button outside of the scene to hold the click handler. When 
 <img src="./assets/counter-example.gif" />
 ```
 
-```text
-// possible data flow ?
+## Sequence diagram
 
-user -> uiButton: click button  
-uiButton -> store: fires onClick function, dispatching "count" to store  
-store -> store: updates itself, increments +1  
-store -> ReduxConnectedSystem: notify of changes in reduxStore  
-ReduxConnectedSystem -> AFrameComponent: updates visible UI
+Pictured below are the sequence of events that lead from a user action (button click) to affecting the AFrame scene via redux action dispatch through `ReduxConnectedSystem`.
+
+![alt text](./docs/flow.png)
+
+```
+User -> Button: click
+Button -> Store: dispatch doAdd
+Store -> Store: increment count by 1
+Store -> ReduxConnectedSystem: notify that `count` has changed in the store
+ReduxConnectedSystem -> my-component: emit `count` event
+my-component -> my-component: update text value in the scene
 ```

@@ -10,7 +10,7 @@ This project is our effort to make a development platform that can be used to cr
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 
-[![Foo](./docs/preview.png)](https://codesandbox.io/s/o71qm45xy)
+[![Foo](./docs/counter-example.gif)](https://codesandbox.io/s/o71qm45xy)
 
 ## OVERVIEW OF CONNECTING AN AFRAME COMPONENT TO A REDUX STORE
 
@@ -133,7 +133,6 @@ We defined a simple button outside of the scene to hold the click handler. When 
 // create an html button holding the new onClick function
 <a onclick="javascript:onClick()" id="clickMe" href="#">Click Me</a>
 ```
-<img src="./assets/counter-example.gif" />
 
 ## Sequence diagram
 

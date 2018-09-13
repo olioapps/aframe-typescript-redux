@@ -225,12 +225,17 @@ export abstract class StoreAwareRepositoryComponent<
 
 interface ReduxConnectedComponentSchema {
     readonly propsToHandlerMapping: BaseMap<string>
+    readonly watchedKeys?: string[]
 }
 
 export class ReduxConnectedComponent extends ComponentWrapper<ReduxConnectedComponentSchema, ReduxConnectedSystem> {
 
     constructor() {
-        super("redux-connected")
+        super("redux-connected", {
+            watchedKeys: {
+                default: [],
+              }
+        })
     }
 
     init() {
@@ -283,9 +288,9 @@ export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSha
             })
         })
 
-        const propsToHandlerMapping = component.data
+        const { watchedKeys = [], ...propsToHandlerMapping } = component.data
         const state = this.getSharedState()
-        const propsToComponentMapping: BaseMap<ComponentFunction[]> = Object.keys(propsToHandlerMapping)
+        const propsToComponentMapping: BaseMap<ComponentFunction[]> = [ ...Object.keys(propsToHandlerMapping), ...watchedKeys ]
             .reduce( 
                 (acc, propKey) => {
                     const propComponentFunctions = state.propsToComponentMapping[propKey] || []

@@ -142,6 +142,12 @@ var __assign = this && this.__assign || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __rest = this && this.__rest || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var aframe_typescript_toolkit_1 = __webpack_require__(4);
 var store_aware_1 = __webpack_require__(1);
@@ -329,7 +335,11 @@ exports.StoreAwareRepositoryComponent = StoreAwareRepositoryComponent;
 var ReduxConnectedComponent = /** @class */function (_super) {
     __extends(ReduxConnectedComponent, _super);
     function ReduxConnectedComponent() {
-        return _super.call(this, "redux-connected") || this;
+        return _super.call(this, "redux-connected", {
+            watchedKeys: {
+                default: []
+            }
+        }) || this;
     }
     ReduxConnectedComponent.prototype.init = function () {
         this.system.connect(this);
@@ -364,9 +374,12 @@ var ReduxConnectedSystem = /** @class */function (_super) {
                 propsToComponentMapping: updated
             });
         });
-        var propsToHandlerMapping = component.data;
+        var _a = component.data,
+            _b = _a.watchedKeys,
+            watchedKeys = _b === void 0 ? [] : _b,
+            propsToHandlerMapping = __rest(_a, ["watchedKeys"]);
         var state = this.getSharedState();
-        var propsToComponentMapping = Object.keys(propsToHandlerMapping).reduce(function (acc, propKey) {
+        var propsToComponentMapping = Object.keys(propsToHandlerMapping).concat(watchedKeys).reduce(function (acc, propKey) {
             var _a;
             var propComponentFunctions = state.propsToComponentMapping[propKey] || [];
             var callback = propsToHandlerMapping[propKey] || propKey;

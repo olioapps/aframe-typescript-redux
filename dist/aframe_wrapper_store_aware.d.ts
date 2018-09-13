@@ -51,6 +51,7 @@ export declare abstract class StoreAwareRepositoryComponent<PROPS, STORE_OBJECT 
 }
 interface ReduxConnectedComponentSchema {
     readonly propsToHandlerMapping: BaseMap<string>;
+    readonly watchedKeys?: string[];
 }
 export declare class ReduxConnectedComponent extends ComponentWrapper<ReduxConnectedComponentSchema, ReduxConnectedSystem> {
     constructor();

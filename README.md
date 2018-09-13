@@ -107,6 +107,16 @@ AFRAME.registerComponent("my-component", {
 
 In the `init` function, AFRAME creates an instance of `my-component` and attaches it to the entity. At this point we can attach a listener to the element (`this.el`) to listen for events called `count`, which will be forwarded by `ReduxConnectedSystem` to the event handler whenever the `count` property in state changes.  
 
+Alternatively, the watched redux store property could have been specified using the `watchedKeys` property on the entity component:
+
+```html
+<a-text my-component redux-connected="watchedKeys: count"
+...
+</a-text>
+```
+
+When `watchedKeys` is used, the event listened to by the target component (`my-component` in these examples) is assumed to have the same name as the watched redux property. Multiple redux store keys/events can be specified, eg. `watchedKey: prop1,prop2,prop3`.
+
 ## 5. Define `onClick` to dispatch actions
 
 The button click handler dispatches `doAdd` to the store when it is clicked, causing the store to change state, and in turn `ReduxConnectedSystem` notifies any entities listening to changes to the `count` property.

@@ -112,7 +112,6 @@ Alternatively, the watched redux store property could have been specified using 
 ```html
 <a-text my-component redux-connected="watchedKeys: count"
 ...
-</a-text>
 ```
 
 When `watchedKeys` is used, the event listened to by the target component (`my-component` in these examples) is assumed to have the same name as the watched redux property. Multiple redux store keys/events can be specified, eg. `watchedKey: prop1,prop2,prop3`.

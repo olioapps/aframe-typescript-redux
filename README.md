@@ -10,8 +10,7 @@ This project is our effort to make a development platform that can be used to cr
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 
-![alt text](./docs/preview.png)
-
+[![Foo](./docs/preview.png)](https://codesandbox.io/s/o71qm45xy)
 
 ## OVERVIEW OF CONNECTING AN AFRAME COMPONENT TO A REDUX STORE
 
@@ -39,12 +38,8 @@ const initialState = {
     count: 1
 }
 
-
-
 // define actions
 const doAdd = () => ({ type: "DO_ADD" })
-
-
 
 // define root reducer
 const reducer = (state = initialState, action) => {
@@ -55,8 +50,6 @@ const reducer = (state = initialState, action) => {
             return state
     }
 }
-
-
 
 // finally, create the store with the root reducer
 const store = Redux.createStore(reducer)

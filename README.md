@@ -34,7 +34,7 @@ import * as AframeRedux from "aframe-typescript-redux"
 git clone https://github.com/aframevr/aframe.git
 cd aframe && npm install
 ```
-## Redux Connected Aframe Componet Example
+## Redux Connected Aframe Component Example
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 

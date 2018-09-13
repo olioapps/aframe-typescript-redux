@@ -192,6 +192,8 @@ var StoreAwareComponent = /** @class */function (_super) {
     return StoreAwareComponent;
 }(aframe_typescript_toolkit_1.ComponentWrapper);
 exports.StoreAwareComponent = StoreAwareComponent;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Watches the whole store
  */
@@ -214,6 +216,8 @@ var StoreAwareSystem = /** @class */function (_super) {
     return StoreAwareSystem;
 }(aframe_typescript_toolkit_1.SystemWrapper);
 exports.StoreAwareSystem = StoreAwareSystem;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Maintains a 1:1 relationship between a store object we want to watch, and
  * an aframe entity component instance
@@ -349,8 +353,7 @@ var ReduxConnectedSystem = /** @class */function (_super) {
         // handle cleaning up - remove references to destroyed entities
         var that = this;
         component.el.addEventListener("componentremoved", function (evt) {
-            var state = that.getSharedState();
-            var propsToComponentMapping = state.propsToComponentMapping;
+            var propsToComponentMapping = that.getSharedState().propsToComponentMapping;
             var updated = Object.keys(propsToComponentMapping).reduce(function (acc, k) {
                 var _a;
                 return __assign({}, acc, (_a = {}, _a[k] = propsToComponentMapping[k].filter(function (f) {
@@ -360,7 +363,6 @@ var ReduxConnectedSystem = /** @class */function (_super) {
             that.setSharedState({
                 propsToComponentMapping: updated
             });
-            // console.log("after: ", that.getSharedState().propsToComponentMapping)
         });
         var propsToHandlerMapping = component.data;
         var state = this.getSharedState();
@@ -376,27 +378,27 @@ var ReduxConnectedSystem = /** @class */function (_super) {
         this.setSharedState({
             propsToComponentMapping: propsToComponentMapping
         });
-        // console.log(this.getSharedState())
     };
     ReduxConnectedSystem.prototype.componentWillReceiveProps = function (props, nextProps) {
         var state = this.getSharedState();
         var propsToComponentMapping = state.propsToComponentMapping;
-        Object.keys(propsToComponentMapping).forEach(function (k) {
-            if (props[k] !== nextProps[k]) {
-                // console.log("!! change detected for", k)
-                // notify listeners for that change
-                propsToComponentMapping[k].forEach(function (listener) {
-                    listener.component.el.emit(listener.callback, {
-                        oldState: props[k],
-                        newState: nextProps[k]
-                    });
+        Object.keys(propsToComponentMapping).filter(function (k) {
+            return props[k] !== nextProps[k];
+        }).forEach(function (k) {
+            // notify listeners for that change
+            propsToComponentMapping[k].forEach(function (listener) {
+                listener.component.el.emit(listener.callback, {
+                    oldState: props[k],
+                    newState: nextProps[k]
                 });
-            }
+            });
         });
     };
     return ReduxConnectedSystem;
 }(StoreAwareSystem);
 exports.ReduxConnectedSystem = ReduxConnectedSystem;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function dispatch(component, action) {
     if (!component.el) {
         return;

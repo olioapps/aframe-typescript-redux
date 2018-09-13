@@ -63,6 +63,9 @@ export abstract class StoreAwareComponent<
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /**
  * Watches the whole store
  */
@@ -93,6 +96,9 @@ export abstract class StoreAwareSystem<
         return this.sharedState.set(sharedState)
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /**
  * Maintains a 1:1 relationship between a store object we want to watch, and
@@ -214,6 +220,9 @@ export abstract class StoreAwareRepositoryComponent<
 
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 interface ReduxConnectedComponentSchema {
     readonly propsToHandlerMapping: BaseMap<string>
 }
@@ -258,57 +267,51 @@ export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSha
         // handle cleaning up - remove references to destroyed entities
         const that = this
         component.el.addEventListener("componentremoved", (evt) => {
-            const state = that.getSharedState()
-            const { propsToComponentMapping } = state
-            const updated: BaseMap<ComponentFunction[]> = Object.keys(propsToComponentMapping).reduce( 
-                (acc, k) => {
-                    return {
-                        ...acc,
-                        [k]: propsToComponentMapping[k].filter( f => f.component.el != component.el)
-                    }
-                },
-                {}
-            )
+            const { propsToComponentMapping } = that.getSharedState()
+            const updated: BaseMap<ComponentFunction[]> = Object.keys(propsToComponentMapping)
+                .reduce( 
+                    (acc, k) =>
+                        ({
+                            ...acc,
+                            [k]: propsToComponentMapping[k].filter(f => f.component.el != component.el)
+                        }),
+                    {}
+                )   
 
             that.setSharedState({
                 propsToComponentMapping: updated,
             })
-
-            // console.log("after: ", that.getSharedState().propsToComponentMapping)
         })
 
         const propsToHandlerMapping = component.data
-
         const state = this.getSharedState()
-
         const propsToComponentMapping: BaseMap<ComponentFunction[]> = Object.keys(propsToHandlerMapping)
-            .reduce( (acc, propKey) => {
-                const propComponentFunctions = state.propsToComponentMapping[propKey] || []
-                const callback = propsToHandlerMapping[propKey] || propKey
-                
-                return {
-                    ...acc,
-                    [propKey]: [...propComponentFunctions, {
-                        component,
-                        callback,
-                    }]
-                }}, 
+            .reduce( 
+                (acc, propKey) => {
+                    const propComponentFunctions = state.propsToComponentMapping[propKey] || []
+                    const callback = propsToHandlerMapping[propKey] || propKey
+                    
+                    return {
+                        ...acc,
+                        [propKey]: [...propComponentFunctions, {
+                            component,
+                            callback,
+                        }]
+                    }}, 
                 { ...state.propsToComponentMapping }
             )
 
         this.setSharedState({
             propsToComponentMapping, 
         })
-
-        // console.log(this.getSharedState())
     }
 
     componentWillReceiveProps(props: ReduxConnectedProps, nextProps: ReduxConnectedProps) {
         const state = this.getSharedState()
         const { propsToComponentMapping } = state
-        Object.keys(propsToComponentMapping).forEach( k => {
-            if (props[k] !== nextProps[k]) {
-                // console.log("!! change detected for", k)
+        Object.keys(propsToComponentMapping)
+            .filter( k => props[k] !== nextProps[k])
+            .forEach( k => {
                 // notify listeners for that change
                 propsToComponentMapping[k].forEach( listener => {
                     listener.component.el.emit(listener.callback, {
@@ -316,15 +319,18 @@ export class ReduxConnectedSystem extends StoreAwareSystem<{}, ReduxConnectorSha
                         newState: nextProps[k],
                     })
                 })
-            }
-        })
+            })
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export function dispatch(component: ComponentWrapper, action: {}): void {
     if (!component.el) {
         return
     }
+
     const dispatcher = component.el["dispatch"]
     if (dispatcher) {
         dispatcher(action)

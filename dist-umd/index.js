@@ -142,6 +142,12 @@ var __assign = this && this.__assign || function () {
     };
     return __assign.apply(this, arguments);
 };
+var __rest = this && this.__rest || function (s, e) {
+    var t = {};
+    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0) t[p] = s[p];
+    if (s != null && typeof Object.getOwnPropertySymbols === "function") for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0) t[p[i]] = s[p[i]];
+    return t;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 var aframe_typescript_toolkit_1 = __webpack_require__(4);
 var store_aware_1 = __webpack_require__(1);
@@ -192,6 +198,8 @@ var StoreAwareComponent = /** @class */function (_super) {
     return StoreAwareComponent;
 }(aframe_typescript_toolkit_1.ComponentWrapper);
 exports.StoreAwareComponent = StoreAwareComponent;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Watches the whole store
  */
@@ -214,6 +222,8 @@ var StoreAwareSystem = /** @class */function (_super) {
     return StoreAwareSystem;
 }(aframe_typescript_toolkit_1.SystemWrapper);
 exports.StoreAwareSystem = StoreAwareSystem;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /**
  * Maintains a 1:1 relationship between a store object we want to watch, and
  * an aframe entity component instance
@@ -325,7 +335,11 @@ exports.StoreAwareRepositoryComponent = StoreAwareRepositoryComponent;
 var ReduxConnectedComponent = /** @class */function (_super) {
     __extends(ReduxConnectedComponent, _super);
     function ReduxConnectedComponent() {
-        return _super.call(this, "redux-connected") || this;
+        return _super.call(this, "redux-connected", {
+            watchedKeys: {
+                default: []
+            }
+        }) || this;
     }
     ReduxConnectedComponent.prototype.init = function () {
         this.system.connect(this);
@@ -349,8 +363,7 @@ var ReduxConnectedSystem = /** @class */function (_super) {
         // handle cleaning up - remove references to destroyed entities
         var that = this;
         component.el.addEventListener("componentremoved", function (evt) {
-            var state = that.getSharedState();
-            var propsToComponentMapping = state.propsToComponentMapping;
+            var propsToComponentMapping = that.getSharedState().propsToComponentMapping;
             var updated = Object.keys(propsToComponentMapping).reduce(function (acc, k) {
                 var _a;
                 return __assign({}, acc, (_a = {}, _a[k] = propsToComponentMapping[k].filter(function (f) {
@@ -360,11 +373,13 @@ var ReduxConnectedSystem = /** @class */function (_super) {
             that.setSharedState({
                 propsToComponentMapping: updated
             });
-            // console.log("after: ", that.getSharedState().propsToComponentMapping)
         });
-        var propsToHandlerMapping = component.data;
+        var _a = component.data,
+            _b = _a.watchedKeys,
+            watchedKeys = _b === void 0 ? [] : _b,
+            propsToHandlerMapping = __rest(_a, ["watchedKeys"]);
         var state = this.getSharedState();
-        var propsToComponentMapping = Object.keys(propsToHandlerMapping).reduce(function (acc, propKey) {
+        var propsToComponentMapping = Object.keys(propsToHandlerMapping).concat(watchedKeys).reduce(function (acc, propKey) {
             var _a;
             var propComponentFunctions = state.propsToComponentMapping[propKey] || [];
             var callback = propsToHandlerMapping[propKey] || propKey;
@@ -376,27 +391,27 @@ var ReduxConnectedSystem = /** @class */function (_super) {
         this.setSharedState({
             propsToComponentMapping: propsToComponentMapping
         });
-        // console.log(this.getSharedState())
     };
     ReduxConnectedSystem.prototype.componentWillReceiveProps = function (props, nextProps) {
         var state = this.getSharedState();
         var propsToComponentMapping = state.propsToComponentMapping;
-        Object.keys(propsToComponentMapping).forEach(function (k) {
-            if (props[k] !== nextProps[k]) {
-                // console.log("!! change detected for", k)
-                // notify listeners for that change
-                propsToComponentMapping[k].forEach(function (listener) {
-                    listener.component.el.emit(listener.callback, {
-                        oldState: props[k],
-                        newState: nextProps[k]
-                    });
+        Object.keys(propsToComponentMapping).filter(function (k) {
+            return props[k] !== nextProps[k];
+        }).forEach(function (k) {
+            // notify listeners for that change
+            propsToComponentMapping[k].forEach(function (listener) {
+                listener.component.el.emit(listener.callback, {
+                    oldState: props[k],
+                    newState: nextProps[k]
                 });
-            }
+            });
         });
     };
     return ReduxConnectedSystem;
 }(StoreAwareSystem);
 exports.ReduxConnectedSystem = ReduxConnectedSystem;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 function dispatch(component, action) {
     if (!component.el) {
         return;

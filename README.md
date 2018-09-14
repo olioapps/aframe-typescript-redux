@@ -40,8 +40,8 @@ To summarize, we will be doing the following:
 2. defining a `Redux Store`
 3. instantiating `ReduxConnectedSystem` and connecting it to this redux store
 4. creating an AFrame entity that is redux-connected
-6. defining `my-component` and adding listeners for redux store changes
-7. defining an `onClick` function in order to dispatch a redux action
+5. defining `my-component` and adding listeners for redux store changes
+6. defining an `onClick` function in order to dispatch a redux action
 
 ## 1. Add Aframe-Typescript-Redux to your project
 To connect your aframe component to redux, the following packages are required: `a-frame`, `aframe-typescript-redux`, and `redux`. In this example, we use the cdns for each and include the scripts in the head of our `html` file .

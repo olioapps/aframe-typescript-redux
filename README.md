@@ -2,33 +2,6 @@
 
 At [Olio Apps](http://www.olioapps.com/), we are applying tools and practices from our experience creating React and React Native applications to engineering VR software for the web.  
 
-## Installation 
-
-### npm
-```javascript
-npm install --save aframe-typescript-redux
-// or yarn add aframe-typescript-redux
-```
-```javascript
-import * as AframeRedux from "aframe-typescript-redux"
-```
-
-### cdn
-
-```html
-<!-- index.html -->
-...
-    <script 
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js">
-    </script>
-    <script
-        type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js">
-    </script>
-</head>
-```
-
 ## Redux Connected Aframe Component Example
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).

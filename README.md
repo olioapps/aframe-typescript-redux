@@ -1,28 +1,38 @@
-# AFrame & Redux - What This Is
+# A-Frame + Redux
 
-At [Olio Apps](http://www.olioapps.com/), we are applying software engineering idioms from React and React Native development ecosystems to WebVR development.  
+At [Olio Apps](http://www.olioapps.com/), we are applying tools and practices from our experience creating React and React Native applications to engineering VR software for the web.  
 
-This project is our effort to make a development platform that can be used to create aframe components and subclasses which makes it easy to connect your VR components to a redux store, for these reasons:
-
-- to facilitate the use of data driven logic.
-- to be able to manage state the same way as other front end javascript/redux applications, and also to be able to think about the components in a familiar React-esque way.
-- to facililate easier onboarding for new and more experienced developers for rapid development and component creation.
+## Redux Connected Aframe Component Example
 
 We will be discussing the [complete example](examples/connected_component.html) below. You can also play with a live example in action at [https://codesandbox.io/s/o71qm45xy](https://codesandbox.io/s/o71qm45xy).
 
-[![Foo](./docs/preview.png)](https://codesandbox.io/s/o71qm45xy)
-
-## OVERVIEW OF CONNECTING AN AFRAME COMPONENT TO A REDUX STORE
+[![Foo](./docs/counter-example.gif)](https://codesandbox.io/s/o71qm45xy)
 
 To summarize, we will be doing the following:
+1. adding `aframe-typescript-redux` to an a-frame project
+2. defining a `Redux Store`
+3. instantiating `ReduxConnectedSystem` and connecting it to this redux store
+4. creating an AFrame entity that is redux-connected
+5. defining `my-component` and adding listeners for redux store changes
+6. defining an `onClick` function in order to dispatch a redux action
 
-1. defining a `Redux Store`
-2. instantiating `ReduxConnectedSystem` and connecting it to this redux store
-3. creating an AFrame entity that is redux-connected
-4. defining `my-component` and adding listeners for redux store changes
-5. defining an `onClick` function in order to dispatch a redux action
+## 1. Add Aframe-Typescript-Redux to your project
+To connect your aframe component to redux, the following packages are required: `a-frame`, `aframe-typescript-redux`, and `redux`. In this example, we use the cdns for each and include the scripts in the head of our `html` file .
+```html
+<html>
+    <head>
+        <!-- a-frame -->
+        <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+        
+        <!--  aframe-typescript-redux -->
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js"></script>
+        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js"></script>
+        
+        <!--  redux -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js">
+```
 
-## 1. Define a Redux Store
+## 2. Define a Redux Store
 
 Defining a simple redux store involves at least 3 main pieces:
 
@@ -67,7 +77,7 @@ console.log(store.getState()) // { count: 2 }
 
 See [Redux documentation](https://redux.js.org/basics/actions) for more details.
 
-## 2. Instantiate `ReduxConnectedSystem` and Connect It To The Redux Store
+## 3. Instantiate `ReduxConnectedSystem` and Connect It To The Redux Store
 
 ```javascript
 // create a new instance of AframeRedux.ReduxConnectedSystem,
@@ -77,7 +87,7 @@ const system = new AframeRedux.ReduxConnectedSystem(store).register()
 
 Instantiating a `ReduxConnectedSystem` and supplying your redux store will cause store changes to be forwarded to entities bound to the `redux-connected` component.
 
-## 3. Create a `redux-connected` AFrame Entity
+## 4. Create a `redux-connected` AFrame Entity
 
 Below is the html to create an aframe `a-text` entity which is given a component `my-component`, and is also redux connected via `redux-connected`:
 
@@ -90,7 +100,7 @@ Below is the html to create an aframe `a-text` entity which is given a component
 
 Defining `redux-connected="count: count"` causes the entity to be notified of changes to the `count` property in the store, via an event of the name `count`.
 
-## 4. Define `my-component` and add listeners for store changes
+## 5. Define `my-component` and add listeners for store changes
 
 The component `my-component` is defined as follows:
 
@@ -116,7 +126,7 @@ Alternatively, the watched redux store property could have been specified using 
 
 When `watchedKeys` is used, the event listened to by the target component (`my-component` in these examples) is assumed to have the same name as the watched redux property. Multiple redux store keys/events can be specified, eg. `watchedKey: prop1,prop2,prop3`.
 
-## 5. Define `onClick` to dispatch actions
+## 6. Define `onClick` to dispatch actions
 
 The button click handler dispatches `doAdd` to the store when it is clicked, causing the store to change state, and in turn `ReduxConnectedSystem` notifies any entities listening to changes to the `count` property.
 
@@ -132,20 +142,16 @@ We defined a simple button outside of the scene to hold the click handler. When 
 ```html
 // create an html button holding the new onClick function
 <a onclick="javascript:onClick()" id="clickMe" href="#">Click Me</a>
-<img src="./assets/counter-example.gif" />
 ```
 
-## Sequence diagram
+## Contact
+We are interested in hearing your questions and feedback.
 
-Pictured below are the sequence of events that lead from a user action (button click) to affecting the AFrame scene via redux action dispatch through `ReduxConnectedSystem`.
+Email: [vr@olioapps.com](vr@olioapps.com)
 
-![alt text](./docs/flow.png)
-
-```
-User -> Button: click
-Button -> Store: dispatch doAdd
-Store -> Store: increment count by 1
-Store -> ReduxConnectedSystem: notify that `count` has changed in the store
-ReduxConnectedSystem -> my-component: emit `count` event
-my-component -> my-component: update text value in the scene
-```
+## Additional Reading 
+- [redux](https://redux.js.org/)
+- [aframe](https://aframe.io/)
+- [aframe-typescript-toolkit](https://github.com/olioapps/aframe-typescript-toolkit)
+## License
+This program is free software and is distributed under an MIT License.

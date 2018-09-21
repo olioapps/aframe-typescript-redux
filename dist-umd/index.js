@@ -336,6 +336,9 @@ var ReduxConnectedComponent = /** @class */function (_super) {
     __extends(ReduxConnectedComponent, _super);
     function ReduxConnectedComponent() {
         return _super.call(this, "redux-connected", {
+            propsToHandlerMapping: {
+                default: {}
+            },
             watchedKeys: {
                 default: []
             }

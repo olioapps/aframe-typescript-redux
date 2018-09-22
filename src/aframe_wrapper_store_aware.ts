@@ -232,6 +232,9 @@ export class ReduxConnectedComponent extends ComponentWrapper<ReduxConnectedComp
 
     constructor() {
         super("redux-connected", {
+            propsToHandlerMapping: {
+                default: null,
+            },
             watchedKeys: {
                 default: [],
               }

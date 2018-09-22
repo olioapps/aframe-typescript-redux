@@ -2,8 +2,8 @@
 
 <head>
     <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js"></script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.3/dist/aframe-extras.min.js"></script>
+    <script type="text/javascript" src="http://racho-dev.ngrok.io/index.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
     <script>
         const initialState = {
@@ -32,8 +32,6 @@
             }
         })
 
-        setInterval(() => store.dispatch(doAdd()), 2000)
-
         const dispatchAdd = () => {
             store.dispatch(doAdd())
         }
@@ -50,6 +48,9 @@
             <a-sky color="#ECECEC"></a-sky>
             <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
         </a-entity>
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light position="0 10 0" color="white" type="point"></a-light>
+        <a-ocean color="aqua" depth="100" width="100"></a-ocean>
     </a-scene>
 </body>
 

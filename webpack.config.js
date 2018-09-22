@@ -11,11 +11,11 @@ const plugins = [
       NODE_ENV: JSON.stringify(nodeEnv)
     }
   }),
-  new webpack.optimize.CommonsChunkPlugin({
-    name: "vendor",
-    minChunks: Infinity,
-    filename: "vendor.bundle.js"
-  }),
+  // new webpack.optimize.CommonsChunkPlugin({
+  //   name: "vendor",
+  //   minChunks: Infinity,
+  //   filename: "vendor.bundle.js"
+  // }),
   new webpack.LoaderOptionsPlugin({
     options: {
       tslint: {

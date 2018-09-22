@@ -119,6 +119,10 @@
   dependencies:
     "@types/webvr-api" "*"
 
+"@types/three@^0.92.21":
+  version "0.92.23"
+  resolved "https://registry.yarnpkg.com/@types/three/-/three-0.92.23.tgz#3d2a2078f2eb22f8e064be80a035dfd8359909c1"
+
 "@types/tween.js@*":
   version "16.9.0"
   resolved "https://registry.yarnpkg.com/@types/tween.js/-/tween.js-16.9.0.tgz#af25067f86e15d2cba89b26776fc273ff7f55650"
@@ -126,6 +130,10 @@
 "@types/webvr-api@*":
   version "0.0.34"
   resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.34.tgz#8fa49028de925c7b8bce3d559d3374ce2c89ee28"
+
+"@types/webvr-api@^0.0.35":
+  version "0.0.35"
+  resolved "https://registry.yarnpkg.com/@types/webvr-api/-/webvr-api-0.0.35.tgz#13b3cf1cd90544524d932ed36e6b109a2ec73d22"
 
 abbrev@1:
   version "1.1.1"
@@ -175,14 +183,14 @@ aframe-extras@^4.1.2:
   dependencies:
     three-pathfinding "^0.5.5"
 
-aframe-typescript-toolkit@^0.0.7:
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.7.tgz#80c892eee6437e237310ed9f4e4b3de698c4850b"
+aframe-typescript-toolkit@0.0.10:
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.10.tgz#67e042cddb5ccdbeb72767194ce4ff9c70242983"
   dependencies:
     "@types/aframe" "^0.7.2"
-    "@types/three" "^0.92.17"
+    "@types/three" "^0.92.21"
+    "@types/webvr-api" "^0.0.35"
     aframe "^0.8.0"
-    aframe-extras "^4.1.2"
     babel-core "^6.22.1"
     babel-eslint "^7.1.1"
     babel-loader "^6.2.10"

@@ -1,58 +1,61 @@
 <html>
-    <head>
-        <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
-        <script>
-            // define shape of store
-            const initialState = {
-                count: 1
+
+<head>
+    <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v4.1.3/dist/aframe-extras.min.js"></script>
+    <script type="text/javascript" src="https://cdn.rawgit.com/olioapps/aframe-typescript-redux/development/dist-umd/index.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js"></script>
+    <script>
+        // define shape of store
+        const initialState = {
+            count: 1
+        }
+
+        // define actions
+        const doAdd = () => ({ type: "DO_ADD" })
+
+        // define root reducer 
+        const reducer = (state = initialState, action) => {
+            switch (action.type) {
+                case "DO_ADD":
+                    return { count: state.count + 1 }
+                default:
+                    return state
             }
+        }
+        
+        // create the store with the root reducer
+        const store = Redux.createStore(reducer)
 
-            // define actions
-            const doAdd = () => ({ type: "DO_ADD" })
+        // Instantiate ReduxConnectedSystem and connect it to store
+        const system = new AframeRedux.ReduxConnectedSystem(store, initialState).register()
 
-            // define root reducer 
-            const reducer = (state = initialState, action) => {
-                switch (action.type) {
-                    case "DO_ADD":
-                        return { count: state.count + 1 }
-                    default:
-                        return state
-                }
+        AFRAME.registerComponent("my-component", {
+            init: function () {
+                this.el.addEventListener("count", function (event) {
+                    const score = event.detail.newState
+                    this.setAttribute("value", score)
+                })
             }
+        })
+    </script>
+</head>
 
-            // create the store with the root reducer
-            const store = Redux.createStore(reducer)
-
-            // Instantiate ReduxConnectedSystem and connect it to store
-            const system = new AframeRedux.ReduxConnectedSystem(store, initialState).register()
-
-            AFRAME.registerComponent("my-component", {
-                init: function () {
-                    this.el.addEventListener("doAdd", function (event) {
-                        const score = event.detail.newState
-                        this.setAttribute("value", score)
-                    })
-                }
-            })
-
-            const onClick = () => {
-                store.dispatch(doAdd())
-            }
-        </script>
-    </head>
-    <body>
-        <a onclick="javascript:onClick()" id="clickMe" href="#">Click Me</a>
-        <a-scene embedded antialias="true">
-            <a-text my-component redux-connected="count: doAdd" width="50"  height="50" value="1" color="black"
+<body>
+    <a onclick="javascript:store.dispatch(doAdd())" id="clickMe" href="#">Click me to change store state and affect the scene</a>
+    <a-scene embedded antialias="true">
+        <a-text my-component redux-connected="watchedKeys: count" width="50"  height="50" value="1" color="black"
                 position="-1 2 -5">
-            </a-text>
-            <a-entity>
-                <a-sky color="#ECECEC"></a-sky>
-                <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
-            </a-entity>
-        </a-scene>
-    </body>
+        </a-text>
+        <a-entity>
+            <a-sky color="#ECECEC"></a-sky>
+            <a-plane position="0 0 -4" rotation="-90 0 0" width="4" height="4" color="#7BC8A4" shadow></a-plane>
+        </a-entity>
+        
+        <a-sky color="#ECECEC"></a-sky>
+        <a-light position="0 10 0" color="white" type="point"></a-light>
+        <a-ocean color="aqua" depth="100" width="100"></a-ocean>
+    </a-scene>
+</body>
+
 </html>

@@ -25,8 +25,7 @@ To connect your aframe component to redux, the following packages are required: 
         <script src="https://aframe.io/releases/0.8.0/aframe.min.js"></script>
         
         <!--  aframe-typescript-redux -->
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/vendor.bundle.min.js"></script>
-        <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/aframe-typescript-redux@0.0.7/dist-umd/index.min.js"></script>
+        <script type="text/javascript" src="https://cdn.rawgit.com/olioapps/aframe-typescript-redux/48b60dde/dist-umd/index.js"></script>
         
         <!--  redux -->
         <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/redux/4.0.0/redux.js">
@@ -124,7 +123,7 @@ Alternatively, the watched redux store property could have been specified using 
 ...
 ```
 
-When `watchedKeys` is used, the event listened to by the target component (`my-component` in these examples) is assumed to have the same name as the watched redux property. Multiple redux store keys/events can be specified, eg. `watchedKey: prop1,prop2,prop3`.
+When `watchedKeys` is used, the event listened to by the target component (`my-component` in these examples) is assumed to have the same name as the watched redux property. Multiple redux store keys/events can be specified, eg. `watchedKeys: prop1,prop2,prop3`.
 
 ## 6. Define `onClick` to dispatch actions
 

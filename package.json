@@ -1,7 +1,7 @@
 {
   "name": "aframe-typescript-redux",
   "version": "0.0.15",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --config ./webpack.config.js  --progress --profile --color --display-error-details --display-cached --bail",
     "clean": "rimraf -- dist && rimraf -- dist-umd",

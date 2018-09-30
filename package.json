@@ -50,5 +50,9 @@
     "aframe-typescript-toolkit": "0.0.10",
     "lodash": "^4.17.4",
     "redux": "^4.0.0"
-  }
+  },
+  "files": [
+    "dist/**/*",
+    "dist-umd/**/*"
+  ]
 }

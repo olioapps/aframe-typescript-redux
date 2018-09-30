@@ -41,3 +41,7 @@ jspm_packages
 .node_repl_history
 
 .history
+
+# Generated files
+dist/
+dist-umd/

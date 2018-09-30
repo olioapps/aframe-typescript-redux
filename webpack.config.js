@@ -36,20 +36,6 @@ var config = {
   entry: {
     app: "./index.ts"
   },
-  output: {
-    path: path.resolve("./dist"),
-    filename: "index.js",
-    sourceMapFilename: "index.map",
-    devtoolModuleFilenameTemplate: function(info) {
-      return "file:///" + info.absoluteResourcePath;
-    }
-  },
-  output: {
-    path: path.resolve(__dirname, 'dist-umd'),
-    filename: 'index.js',
-    library: 'AframeRedux',
-    libraryTarget: 'umd'
-  },
   module: {
     rules: [
       {
@@ -71,4 +57,26 @@ var config = {
   plugins: plugins
 };
 
-module.exports = config;
+const commonjsConfig = {
+  ...config,
+  output: {
+    path: path.resolve("./dist"),
+    filename: "index.js",
+    sourceMapFilename: "index.map",
+    devtoolModuleFilenameTemplate: function(info) {
+      return "file:///" + info.absoluteResourcePath;
+    }
+  }
+};
+
+const umdConfig = {
+  ...config,
+  output: {
+    path: path.resolve(__dirname, 'dist-umd'),
+    filename: 'index.js',
+    library: 'AframeRedux',
+    libraryTarget: 'umd'
+  }
+};
+
+module.exports = [commonjsConfig, umdConfig];

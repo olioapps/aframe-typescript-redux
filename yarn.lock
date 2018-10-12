@@ -75,9 +75,9 @@ acorn@^5.0.0, acorn@^5.2.1, acorn@^5.5.0:
   version "5.7.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
 
-aframe-typescript-toolkit@0.0.10:
-  version "0.0.10"
-  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.10.tgz#67e042cddb5ccdbeb72767194ce4ff9c70242983"
+aframe-typescript-toolkit@0.0.11:
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.11.tgz#58e3f9f15e325e8450702c4cb220821b87dfd4a4"
   dependencies:
     "@types/aframe" "^0.7.2"
     "@types/three" "^0.92.21"
@@ -1387,7 +1387,7 @@ date-now@^0.1.4:
   version "0.1.4"
   resolved "https://registry.yarnpkg.com/date-now/-/date-now-0.1.4.tgz#eaf439fd4d4848ad74e5cc7dbef200672b9e345b"
 
-debug@2.2.0, "debug@github:ngokevin/debug#noTimestamp":
+debug@2.2.0, debug@ngokevin/debug#noTimestamp:
   version "2.2.0"
   resolved "https://codeload.github.com/ngokevin/debug/tar.gz/ef5f8e66d49ce8bc64c6f282c15f8b7164409e3a"
 
@@ -1588,7 +1588,7 @@ doctrine@^2.1.0:
   dependencies:
     esutils "^2.0.2"
 
-"document-register-element@github:dmarcos/document-register-element#8ccc532b7":
+document-register-element@dmarcos/document-register-element#8ccc532b7:
   version "0.5.4"
   resolved "https://codeload.github.com/dmarcos/document-register-element/tar.gz/8ccc532b7f3744be954574caf3072a5fd260ca90"
 

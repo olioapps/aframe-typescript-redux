@@ -79,8 +79,8 @@ export abstract class StoreAwareSystem<
     store: Store
     private sharedState = new SharedStateContainer<SHARED_STATE>()
 
-    constructor(store: Store, name: string, props?: PROPS, schema?: {}) {
-        super(name, schema || {})
+    constructor(store: Store, name: string, props?: PROPS, schema?: SCHEMA) {
+        super(name, schema)
         this.store = store
         this.storeAware = new Connector<PROPS>(store, props, this)
         this.store = store

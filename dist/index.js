@@ -1,14 +1,4 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["AframeRedux"] = factory();
-	else
-		root["AframeRedux"] = factory();
-})(typeof self !== 'undefined' ? self : this, function() {
-return /******/ (function(modules) { // webpackBootstrap
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
 /******/
@@ -244,7 +234,7 @@ exports.StoreAwareComponent = StoreAwareComponent;
 var StoreAwareSystem = /** @class */function (_super) {
     __extends(StoreAwareSystem, _super);
     function StoreAwareSystem(store, name, props, schema) {
-        var _this = _super.call(this, name, schema) || this;
+        var _this = _super.call(this, name, schema || {}) || this;
         _this.sharedState = new SharedStateContainer();
         _this.store = store;
         _this.storeAware = new Connector(store, props, _this);
@@ -487,16 +477,10 @@ exports.EntityBuilder = entity_builder_1.EntityBuilder;
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // helpers
 Object.defineProperty(exports, "__esModule", { value: true });
-/***
- * @hidden
- */
 var hasMethod = function (obj, name) {
     var desc = Object.getOwnPropertyDescriptor(obj, name);
     return !!desc && typeof desc.value === "function";
 };
-/***
- * @hidden
- */
 var getInstanceMethodNames = function (obj, stop) {
     var array = [];
     var proto = Object.getPrototypeOf(obj);
@@ -513,11 +497,6 @@ var getInstanceMethodNames = function (obj, stop) {
     }
     return array;
 };
-/**
- * Extend this class to create strongly typed A-Frame components.
- * Default implementations for component lifecycle methods such as init(), tick(), and others are provided,
- * and can be overridden for your component's specific behavior.
- */
 var ComponentWrapper = /** @class */ (function () {
     function ComponentWrapper(name, schema) {
         this.name = name;
@@ -525,38 +504,17 @@ var ComponentWrapper = /** @class */ (function () {
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // default aframe core function implementations
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_remove.
-     */
     ComponentWrapper.prototype.remove = function () { };
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_update.
-     */
     ComponentWrapper.prototype.update = function (oldData) { };
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_updateschema.
-     */
     ComponentWrapper.prototype.extendSchema = function (update) { };
     ComponentWrapper.prototype.flushToDOM = function () { };
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // default aframe core function implementations
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_init.
-     */
     ComponentWrapper.prototype.init = function () { };
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_pause.
-     */
     ComponentWrapper.prototype.pause = function () { };
-    /**
-     * Wraps https://aframe.io/docs/0.8.0/core/component.html#definition_lifecycle_handler_methods_play.
-     */
     ComponentWrapper.prototype.play = function () { };
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // special wrapper functions implementations
-    /***
-     * @hidden
-     */
     ComponentWrapper.prototype.merge = function () {
         var _this = this;
         var funcs = getInstanceMethodNames(this, Object.prototype);
@@ -593,9 +551,6 @@ var SystemWrapper = /** @class */ (function () {
     SystemWrapper.prototype.play = function () { };
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // special wrapper functions implementations
-    /***
-     * @hidden
-     */
     SystemWrapper.prototype.merge = function () {
         var _this = this;
         var funcs = getInstanceMethodNames(this, Object.prototype);
@@ -685,4 +640,3 @@ exports.EntityBuilder = EntityBuilder;
 
 /***/ })
 /******/ ]);
-});

@@ -19,7 +19,7 @@ export declare abstract class StoreAwareSystem<PROPS, SHARED_STATE = {}, SCHEMA 
     storeAware: StoreAware<PROPS>;
     store: Store;
     private sharedState;
-    constructor(store: Store, name: string, props?: PROPS, schema?: {});
+    constructor(store: Store, name: string, props?: PROPS, schema?: SCHEMA);
     abstract componentWillReceiveProps(props: PROPS, nextProps: PROPS): void;
     getSharedState(): SHARED_STATE;
     setSharedState(sharedState: SHARED_STATE): void;

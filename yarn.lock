@@ -79,9 +79,9 @@ acorn@^5.0.0, acorn@^5.2.1, acorn@^5.5.0:
   version "5.7.3"
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-5.7.3.tgz#67aa231bf8812974b85235a96771eb6bd07ea279"
 
-aframe-typescript-toolkit@0.0.14:
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.14.tgz#1366231d0b5ccd1e4cfc176b970974a203917200"
+aframe-typescript-toolkit@0.0.15:
+  version "0.0.15"
+  resolved "https://registry.yarnpkg.com/aframe-typescript-toolkit/-/aframe-typescript-toolkit-0.0.15.tgz#fe0b038a84147a8165733af8805a0c999b61b263"
   dependencies:
     "@types/aframe" "^0.7.2"
     "@types/three" "^0.92.21"
@@ -3385,7 +3385,7 @@ longest@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/longest/-/longest-1.0.1.tgz#30a0b2da38f73770e8294a0d22e6625ed77d0097"
 
-loose-envify@^1.0.0, loose-envify@^1.1.0:
+loose-envify@^1.0.0, loose-envify@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/loose-envify/-/loose-envify-1.4.0.tgz#71ee51fa7be4caec1a63839f7e682d8132d30caf"
   dependencies:
@@ -4706,10 +4706,10 @@ reduce-function-call@^1.0.1:
     balanced-match "^0.4.2"
 
 redux@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.0.tgz#aa698a92b729315d22b34a0553d7e6533555cc03"
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/redux/-/redux-4.0.1.tgz#436cae6cc40fbe4727689d7c8fae44808f1bfef5"
   dependencies:
-    loose-envify "^1.1.0"
+    loose-envify "^1.4.0"
     symbol-observable "^1.2.0"
 
 regenerate@^1.2.1:
